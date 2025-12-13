@@ -7,15 +7,19 @@ use serde::{Deserialize, Serialize};
 use linot::{Card, CardSuit, MatchConfig};
 
 /// Root application state stored on-chain using Linera Views
+/// Note: Different fields are used on different chain types (User vs Play)
 #[derive(RootView)]
 #[view(context = ViewStorageContext)]
 pub struct LinotState {
+    // === COMMON/PLAY CHAIN FIELDS ===
     /// Match configuration
     pub config: RegisterView<MatchConfig>,
     /// Current match data (players, deck, game state)
     pub match_data: RegisterView<MatchData>,
     /// Optional betting pool for staking (Wave 4-5)
     pub betting_pool: RegisterView<Option<BettingPool>>,
+    /// ID of the Play Chain this chain is connected to (for User Chains)
+    pub active_game_chain_id: RegisterView<Option<linera_sdk::linera_base_types::ChainId>>,
 }
 
 // ============ Match Data ============
@@ -89,6 +93,8 @@ pub struct Player {
     pub card_count: usize,
     /// Whether player called "Last Card!"
     pub called_last_card: bool,
+    /// Chain ID of the player's USER_CHAIN (for routing events)
+    pub chain_id: Option<linera_sdk::linera_base_types::ChainId>,
 }
 
 impl Player {
@@ -101,6 +107,7 @@ impl Player {
             is_active: true,
             card_count: 0,
             called_last_card: false,
+            chain_id: None, // Will be set when player joins from a chain
         }
     }
 
@@ -141,6 +148,78 @@ pub struct Bet {
     pub amount: u64,
     /// Timestamp of bet
     pub placed_at: u64,
+}
+
+// ============ Helper Methods ============
+
+impl MatchData {
+    /// Get player-specific view (Inspo pattern - hides opponent cards)
+    #[allow(dead_code)]
+    pub fn get_player_view(&self, player_owner: &AccountOwner) -> Option<PlayerView> {
+        // Find the requesting player
+        let player = self.players.iter()
+            .find(|p| &p.owner == player_owner)?;
+        
+        // Build opponent views (without their cards)
+        let opponents: Vec<OpponentView> = self.players.iter()
+            .filter(|p| &p.owner != player_owner)
+            .map(|p| OpponentView {
+                owner: p.owner,
+                nickname: p.nickname.clone(),
+                card_count: p.card_count,
+                is_active: p.is_active,
+                called_last_card: p.called_last_card,
+            })
+            .collect();
+        
+        Some(PlayerView {
+            my_cards: player.cards.clone(),
+            my_card_count: player.card_count,
+            called_last_card: player.called_last_card,
+            opponents,
+            top_card: self.discard_pile.last().cloned(),
+            deck_size: self.deck.len(),
+            current_player_index: self.current_player_index,
+            status: self.status,
+            active_shape_demand: self.active_shape_demand,
+            pending_penalty: self.pending_penalty,
+        })
+    }
+}
+
+/// Player-specific view with private hand data
+#[derive(Debug, Clone, Serialize, Deserialize, async_graphql::SimpleObject)]
+pub struct PlayerView {
+    /// My cards (only visible to me)
+    pub my_cards: Vec<Card>,
+    /// My card count
+    pub my_card_count: usize,
+    /// Whether I called last card
+    pub called_last_card: bool,
+    /// Other players (without their cards)
+    pub opponents: Vec<OpponentView>,
+    /// Top card in discard pile
+    pub top_card: Option<Card>,
+    /// Remaining deck size
+    pub deck_size: usize,
+    /// Current player index
+    pub current_player_index: usize,
+    /// Game status
+    pub status: MatchStatus,
+    /// Active shape demand
+    pub active_shape_demand: Option<CardSuit>,
+    /// Pending penalty
+    pub pending_penalty: u8,
+}
+
+/// Opponent information (cards hidden)
+#[derive(Debug, Clone, Serialize, Deserialize, async_graphql::SimpleObject)]
+pub struct OpponentView {
+    pub owner: AccountOwner,
+    pub nickname: String,
+    pub card_count: usize,
+    pub is_active: bool,
+    pub called_last_card: bool,
 }
 
 // Placeholder to keep the file present in the repo.

@@ -1,12 +1,18 @@
-"use client";
 import ChevronDown from "@/svg/ChevronDown";
-import { motion, AnimatePresence, useScroll } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { CirclePlus } from "lucide-react";
 import { useState } from "react";
 import BetButton from "./BetButton";
+import { PlayerView } from "@/lib/types";
 
-function GamePlayersTab() {
+interface GamePlayersTabProps {
+  playerNumber: 1 | 2;
+  gameState: PlayerView;
+}
+
+function GamePlayersTab({ playerNumber, gameState }: GamePlayersTabProps) {
   const [isPlayersShow, setIsPlayersShow] = useState(true);
+
   return (
     <div className="p-3 pt-8 rounded-lg border border-[#F9F9F9] min-w-[272px] text-[#01626F] bg-[#F9F9F903] space-y-[50px]">
       <div
@@ -45,6 +51,7 @@ function GamePlayersTab() {
   `,
                 }}
               >
+                {/* Current Player (You) */}
                 <div
                   className="py-1 px-2 rounded-2xl border-[0.4px] border-[#D0EEF5] flex justify-between gap-x-6 items-center"
                   style={{
@@ -59,7 +66,7 @@ function GamePlayersTab() {
                       <img src="/user-pfp.svg" alt="" />
                     </div>
                     <h4 className="font-satoshi font-medium flex items-center gap-x-1.5 font-bold">
-                      Divine <span>(You)</span>
+                      Player {playerNumber} <span>(You)</span>
                     </h4>
                   </div>
 
@@ -68,29 +75,34 @@ function GamePlayersTab() {
                     <h4 className="font-lilitaone text-xl font-bold">1000</h4>
                   </div>
                 </div>
-                <div
-                  className="py-1 px-2 rounded-2xl border-[0.4px] border-[#D0EEF5] flex justify-between gap-x-6 items-center"
-                  style={{
-                    boxShadow: `
-    4px  2px 5px 0px rgba(255, 255, 255, 0.25) inset,
-    1px -2px 5px 0px rgba(255, 255, 255, 0.3) inset
-  `,
-                  }}
-                >
-                  <div className="flex items-center gap-x-1.5">
-                    <div className="w-[37px] h-[37px] rounded-full border-[0.8px] border-[#88D0E1]">
-                      <img src="/user-pfp.svg" alt="" />
+
+                {/* Opponents */}
+                {gameState.opponents.map((opp, idx) => (
+                    <div
+                    key={idx}
+                    className="py-1 px-2 rounded-2xl border-[0.4px] border-[#D0EEF5] flex justify-between gap-x-6 items-center opacity-80"
+                    style={{
+                        boxShadow: `
+        4px  2px 5px 0px rgba(255, 255, 255, 0.25) inset,
+        1px -2px 5px 0px rgba(255, 255, 255, 0.3) inset
+    `,
+                    }}
+                    >
+                    <div className="flex items-center gap-x-1.5">
+                        <div className="w-[37px] h-[37px] rounded-full border-[0.8px] border-[#88D0E1]">
+                        <img src="/user-pfp.svg" alt="" />
+                        </div>
+                        <h4 className="font-satoshi font-medium flex items-center gap-x-1.5 font-bold">
+                        {opp.nickname} <span>(Opp)</span>
+                        </h4>
                     </div>
-                    <h4 className="font-satoshi font-medium flex items-center gap-x-1.5 font-bold">
-                      Divine <span>(You)</span>
-                    </h4>
-                  </div>
 
-                  <div className="flex items-center gap-x-1">
-                    <img src="/coin.svg" className="w-[15px] h-[15px]" alt="" />
-                    <h4 className="font-lilitaone text-xl font-bold">1000</h4>
-                  </div>
-                </div>
+                    <div className="flex items-center gap-x-1">
+                        <img src="/coin.svg" className="w-[15px] h-[15px]" alt="" />
+                        <h4 className="font-lilitaone text-xl font-bold">800</h4>
+                    </div>
+                    </div>
+                ))}
               </div>
             </motion.div>
           )}
@@ -120,23 +132,10 @@ function GamePlayersTab() {
           }}
         >
           <div>
-            <h3 className="mb-2 font-satoshi">Divine's Bets (You):</h3>
+            <h3 className="mb-2 font-satoshi">Your Bets:</h3>
             <div className="grid grid-cols-4 gap-x-2">
               <BetButton value={"25"} />
               <BetButton value={"18"} />
-              <BetButton value={"9"} />
-              <BetButton value={"2"} />
-            </div>
-          </div>
-
-          <div className="h-px rounded bg-[#B8F7FF80] w-full" />
-          <div>
-            <h3 className="mb-2 font-satoshi">Dinah's Bets:</h3>
-            <div className="grid grid-cols-4 gap-x-2">
-              <BetButton value={"25"} />
-              <BetButton value={"18"} />
-              <BetButton value={"9"} />
-              <BetButton value={"2"} />
             </div>
           </div>
         </div>

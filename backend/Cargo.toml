@@ -1,16 +1,26 @@
+[workspace]
+members = ["abi", "."]
+
+[workspace.dependencies]
+async-graphql = { version = "=7.0.17", default-features = false }
+linera-sdk = "0.15.4"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+
 [package]
 name = "backend"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-async-graphql = { version = "=7.0.17", default-features = false }
-linera-sdk = "0.15.4"
+whot-abi = { path = "abi" }
+async-graphql.workspace = true
+linera-sdk.workspace = true
 linera-views = "0.15.4"
 futures = { version = "0.3 "}
-serde = { version = "1.0", features = ["derive"] }
+serde.workspace = true
 serde_json = { version = "1.0" }
-thiserror = "1.0"
+thiserror.workspace = true
 
 [dev-dependencies]
 linera-sdk = { version = "0.15.4", features = ["test", "wasmer"] }

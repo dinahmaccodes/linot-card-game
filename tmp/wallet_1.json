@@ -1,0 +1,187 @@
+{
+  "chains": {
+    "68a9e0f46c0eabd182806a7b986a690ca6cc904ae13ee75dcb89324be6ef7140": {
+      "chain_id": "68a9e0f46c0eabd182806a7b986a690ca6cc904ae13ee75dcb89324be6ef7140",
+      "owner": "0x66537dec31adeb0a89264ab806b6d6ade135afc27bea4de41898e5c956f6c319",
+      "block_hash": null,
+      "timestamp": 1765486094508736,
+      "next_block_height": 0,
+      "pending_proposal": null
+    },
+    "9db0bc07d66cd488cee10d9fd2963d07edd7613710bbce15f804f9de8ac4fd2f": {
+      "chain_id": "9db0bc07d66cd488cee10d9fd2963d07edd7613710bbce15f804f9de8ac4fd2f",
+      "owner": null,
+      "block_hash": null,
+      "timestamp": 1765486085862549,
+      "next_block_height": 0,
+      "pending_proposal": null
+    },
+    "f430ed02fe3e2ec588571528964a1b8860cd13be2c49cff114fcc56c91723c62": {
+      "chain_id": "f430ed02fe3e2ec588571528964a1b8860cd13be2c49cff114fcc56c91723c62",
+      "owner": "0x1b2deea2d2754d7d92b51ca27c38da219844c3df5e9218ecfd4b304937c8c93c",
+      "block_hash": "e82565decff803b45871b6edc9f0a5bc8aa42892ac1a2041e543af9b4af0a937",
+      "timestamp": 1765486100481548,
+      "next_block_height": 2,
+      "pending_proposal": null
+    }
+  },
+  "default": "f430ed02fe3e2ec588571528964a1b8860cd13be2c49cff114fcc56c91723c62",
+  "genesis_config": {
+    "committee": {
+      "validators": {
+        "037b813d502b5e0882c3883f2ae9d8d58d5137d520e696462cac97b517c3849478": {
+          "network_address": "grpc:localhost:13001",
+          "votes": 100,
+          "account_public_key": {
+            "Ed25519": "6e72bb749d3c199b126eee73a21528bd7c93e7d839f784a8ee2418e2fcaa1387"
+          }
+        }
+      },
+      "total_votes": 100,
+      "quorum_threshold": 67,
+      "validity_threshold": 34,
+      "policy": {
+        "wasm_fuel_unit": "0.",
+        "evm_fuel_unit": "0.",
+        "read_operation": "0.",
+        "write_operation": "0.",
+        "byte_runtime": "0.",
+        "byte_read": "0.",
+        "byte_written": "0.",
+        "blob_read": "0.",
+        "blob_published": "0.",
+        "blob_byte_read": "0.",
+        "blob_byte_published": "0.",
+        "byte_stored": "0.",
+        "operation": "0.",
+        "operation_byte": "0.",
+        "message": "0.",
+        "message_byte": "0.",
+        "service_as_oracle_query": "0.",
+        "http_request": "0.",
+        "maximum_wasm_fuel_per_block": 18446744073709551615,
+        "maximum_evm_fuel_per_block": 18446744073709551615,
+        "maximum_service_oracle_execution_ms": 18446744073709551615,
+        "maximum_block_size": 18446744073709551615,
+        "maximum_bytecode_size": 18446744073709551615,
+        "maximum_blob_size": 18446744073709551615,
+        "maximum_published_blobs": 18446744073709551615,
+        "maximum_block_proposal_size": 18446744073709551615,
+        "maximum_bytes_read_per_block": 18446744073709551615,
+        "maximum_bytes_written_per_block": 18446744073709551615,
+        "maximum_oracle_response_bytes": 18446744073709551615,
+        "maximum_http_response_bytes": 18446744073709551615,
+        "http_request_timeout_ms": 18446744073709551615,
+        "http_request_allow_list": [
+          "localhost"
+        ]
+      }
+    },
+    "timestamp": 1765486085862549,
+    "chains": [
+      {
+        "origin": {
+          "Root": 0
+        },
+        "timestamp": 1765486085862549,
+        "config": {
+          "ownership": {
+            "super_owners": [],
+            "owners": {
+              "0x401e09975b41de29ba7a4f653f10c913de778c9fa8d5c3d63e4f177342d1bc80": 100
+            },
+            "multi_leader_rounds": 2,
+            "open_multi_leader_rounds": false,
+            "timeout_config": {
+              "fast_round_duration": null,
+              "base_timeout": 10000000,
+              "timeout_increment": 1000000,
+              "fallback_duration": 18446744073709551615
+            }
+          },
+          "epoch": "0",
+          "min_active_epoch": "0",
+          "max_active_epoch": "0",
+          "balance": "1000000000.",
+          "application_permissions": {
+            "execute_operations": null,
+            "mandatory_applications": [],
+            "close_chain": [],
+            "change_application_permissions": [],
+            "call_service_as_oracle": null,
+            "make_http_requests": null
+          }
+        }
+      },
+      {
+        "origin": {
+          "Root": 1
+        },
+        "timestamp": 1765486085862549,
+        "config": {
+          "ownership": {
+            "super_owners": [],
+            "owners": {
+              "0xadb68db2115cf2247a9eaa1bc3d3af40e438fdc45087701a9216dfb461093c2f": 100
+            },
+            "multi_leader_rounds": 2,
+            "open_multi_leader_rounds": false,
+            "timeout_config": {
+              "fast_round_duration": null,
+              "base_timeout": 10000000,
+              "timeout_increment": 1000000,
+              "fallback_duration": 18446744073709551615
+            }
+          },
+          "epoch": "0",
+          "min_active_epoch": "0",
+          "max_active_epoch": "0",
+          "balance": "1000000000.",
+          "application_permissions": {
+            "execute_operations": null,
+            "mandatory_applications": [],
+            "close_chain": [],
+            "change_application_permissions": [],
+            "call_service_as_oracle": null,
+            "make_http_requests": null
+          }
+        }
+      },
+      {
+        "origin": {
+          "Root": 2
+        },
+        "timestamp": 1765486085862549,
+        "config": {
+          "ownership": {
+            "super_owners": [],
+            "owners": {
+              "0x01dad170b7f1ef84d635afb70c490f12fc2670cb497f5aa5c7409e19809dc483": 100
+            },
+            "multi_leader_rounds": 2,
+            "open_multi_leader_rounds": false,
+            "timeout_config": {
+              "fast_round_duration": null,
+              "base_timeout": 10000000,
+              "timeout_increment": 1000000,
+              "fallback_duration": 18446744073709551615
+            }
+          },
+          "epoch": "0",
+          "min_active_epoch": "0",
+          "max_active_epoch": "0",
+          "balance": "1000000000.",
+          "application_permissions": {
+            "execute_operations": null,
+            "mandatory_applications": [],
+            "close_chain": [],
+            "change_application_permissions": [],
+            "call_service_as_oracle": null,
+            "make_http_requests": null
+          }
+        }
+      }
+    ],
+    "network_name": "linera-2025-12-11T20:48:05"
+  }
+}

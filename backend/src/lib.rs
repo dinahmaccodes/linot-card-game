@@ -7,10 +7,20 @@ use linera_sdk::{
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+// Re-export ABI types
+pub use whot_abi::{
+    Card, CardSuit, CardValue, WhotGame, WhotPlayer, 
+    PlayerView, OpponentView, GameStatus, Profile, WHOT_STREAM_NAME,
+};
+
+// Re-export for potential future use
+#[allow(unused_imports)]
+pub use whot_abi::WhotEvent;
+
 // ============ Constants ============
 
 /// Stream name for game events (multiplayer synchronization)
-pub const GAME_EVENTS_STREAM: &[u8] = b"linot_game_events";
+pub const GAME_EVENTS_STREAM: &[u8] = WHOT_STREAM_NAME;
 
 /// Turn timeout in microseconds (3 minutes)
 pub const TURN_TIMEOUT_MICROS: u64 = 3 * 60 * 1_000_000; // 180 seconds
@@ -75,6 +85,9 @@ pub enum LinotError {
     
     #[error("Turn timeout - player took too long")]
     TurnTimeout,
+    
+    #[error("Invalid chain ID format: {0}")]
+    InvalidChainId(String),
 }
 
 // ============ ABI Definition ============
@@ -92,78 +105,13 @@ impl ServiceAbi for LinotAbi {
 }
 
 // ============ Data Types ============
-
-#[derive(Debug, Clone, Serialize, Deserialize, async_graphql::SimpleObject)]
-pub struct Card {
-    pub suit: CardSuit,
-    pub value: CardValue,
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, async_graphql::Enum, PartialEq, Eq, Hash)]
-pub enum CardSuit {
-    Circle,
-    Cross,
-    Triangle,
-    Square,
-    Star,
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, async_graphql::Enum, PartialEq, Eq)]
-pub enum CardValue {
-    One,      // 1 - Hold On (special)
-    Two,      // 2 - Pick Two (special)
-    Three,    // 3
-    Four,     // 4
-    Five,     // 5 - Pick Three (special)
-    Six,      // 6
-    Seven,    // 7
-    Eight,    // 8 - Suspension (special)
-    Nine,     // 9
-    Ten,      // 10
-    Eleven,   // 11
-    Twelve,   // 12
-    Thirteen, // 13
-    Fourteen, // 14 - General Market (special)
-    Whot,     // 20 - Wild card (special)
-}
-
-impl CardValue {
-    /// Get the numeric value for display/logic
-    pub fn to_number(&self) -> u8 {
-        match self {
-            CardValue::One => 1,
-            CardValue::Two => 2,
-            CardValue::Three => 3,
-            CardValue::Four => 4,
-            CardValue::Five => 5,
-            CardValue::Six => 6,
-            CardValue::Seven => 7,
-            CardValue::Eight => 8,
-            CardValue::Nine => 9,
-            CardValue::Ten => 10,
-            CardValue::Eleven => 11,
-            CardValue::Twelve => 12,
-            CardValue::Thirteen => 13,
-            CardValue::Fourteen => 14,
-            CardValue::Whot => 20,
-        }
-    }
-
-    /// Check if this is a special action card
-    pub fn is_special(&self) -> bool {
-        matches!(self, 
-            CardValue::One | CardValue::Two | CardValue::Five | 
-            CardValue::Eight | CardValue::Fourteen | CardValue::Whot
-        )
-    }
-}
+// Card types are now imported from whot-abi
 
 // ============ Match Configuration ============
 
 #[derive(Debug, Clone, Serialize, Deserialize, async_graphql::SimpleObject)]
 pub struct MatchConfig {
     pub max_players: u8,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub host: Option<AccountOwner>,
     pub is_ranked: bool,
     pub strict_mode: bool, // Enforce must draw if no valid move
@@ -238,6 +186,37 @@ pub enum Message {
         nickname: String,
     },
 
+    /// Play a card (sent from User Chain to Play Chain)
+    PlayCard {
+        player: AccountOwner,
+        card_index: usize,
+        chosen_suit: Option<CardSuit>,
+    },
+
+    /// Draw a card (sent from User Chain to Play Chain)
+    DrawCard {
+        player: AccountOwner,
+    },
+
+    /// Call Last Card (sent from User Chain to Play Chain)
+    CallLastCard {
+        player: AccountOwner,
+    },
+
+    /// Challenge Last Card (sent from User Chain to Play Chain)
+    ChallengeLastCard {
+        player: AccountOwner,
+        target_index: usize,
+    },
+
+    /// Leave Match (sent from User Chain to Play Chain)
+    LeaveMatch {
+        player: AccountOwner,
+    },
+
+    /// Check Timeout (sent from User Chain to Play Chain)
+    CheckTimeout,
+
     /// Sync initial state to newly joined player
     InitialStateSync {
         config: MatchConfig,
@@ -247,60 +226,33 @@ pub enum Message {
 
     /// Broadcast game event to all players
     GameEvent {
-        event: GameEvent,
+        event: GameEvent, // TODO: Migrate to WhotEvent in Phase 2
     },
 }
 
 // ============ Events (For Stream Emission) ============
+// New events are in whot-abi as WhotEvent
+// Keep GameEvent for backward compatibility during transition
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum GameEvent {
-    /// Player joined the match
-    PlayerJoined {
-        nickname: String,
-        player_count: usize,
-    },
+    PlayerJoined { nickname: String, player_count: usize },
+    MatchStarted { first_player: String, top_card: Card },
+    CardPlayed { player: String, card: Card, next_player: String, special_effect: Option<String> },
+    CardsDrawn { player: String, count: u8, next_player: String },
+    MatchEnded { winner: String, winner_index: usize },
+    PlayerLeft { nickname: String },
+    TurnTimeoutWarning { player: String },
+    TurnTimeout { player: String, auto_drawn: bool },
+}
 
-    /// Match has started
-    MatchStarted {
-        first_player: String,
-        top_card: Card,
-    },
-
-    /// Card was played
-    CardPlayed {
-        player: String,
-        card: Card,
-        next_player: String,
-        special_effect: Option<String>,
-    },
-
-    /// Cards were drawn
-    CardsDrawn {
-        player: String,
-        count: u8,
-        next_player: String,
-    },
-
-    /// Match ended
-    MatchEnded {
-        winner: String,
-        winner_index: usize,
-    },
-
-    /// Player left/forfeited
-    PlayerLeft {
-        nickname: String,
-    },
-
-    /// Turn timeout warning (2 minutes elapsed)
-    TurnTimeoutWarning {
-        player: String,
-    },
-
-    /// Turn timeout (3 minutes elapsed, auto-draw)
-    TurnTimeout {
-        player: String,
-        auto_drawn: bool,
-    },
+/// User status for 2-chain architecture
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub enum UserStatus {
+    /// Idle - not in any game
+    Idle,
+    /// Finding a game to join
+    FindingGame,
+    /// Currently in a game
+    InGame,
 }

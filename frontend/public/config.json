@@ -1,0 +1,16 @@
+{
+  "applicationId": "ae4e980971b49deff29a44ffffae2387c5469bc3a3bc15696ba81616ca40836a",
+  "playChain": "032c02f314b778915056906f20749fd4fca336f970eea9ee481736ef804d00b1",
+  "endpoints": [
+    {
+      "chainId": "6e6bc7d312084f44b54654dce50bde22585e9d6595e5b357422882adc60fd7fe",
+      "owner": "0x07c6ca26a0223fad3019a024f2257c76f4c0acb0573fe17c2ef1efecfef22a87",
+      "url": "http://localhost:8081"
+    },
+    {
+      "chainId": "4f4ea2d29b04c5c76944f5fcd501e982e1f65d297d7cfde9d1642bd29894d7a3",
+      "owner": "0x7311dd5b14f6ff0d8ba4357ade5c73d3eaf282bf5febf9d9176528646673081f",
+      "url": "http://localhost:8082"
+    }
+  ]
+}

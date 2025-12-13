@@ -1,21 +1,59 @@
 "use client";
-import { useRouter } from "next/navigation";
 
-function page() {
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useWhotGame } from "@/hooks/useWhotGame";
+
+export default function RegisterPage() {
   const router = useRouter();
+  const { joinGame, playerNumber } = useWhotGame();
+  
+  const [nickname, setNickname] = useState("");
+  const [isJoining, setIsJoining] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleJoin = async () => {
+    if (!nickname.trim()) {
+      setError("Please enter a nickname");
+      return;
+    }
+
+    // Clear old cached data
+    localStorage.clear();
+
+    setIsJoining(true);
+    setError(null);
+
+    try {
+      console.log(`Joining game as ${nickname}...`);
+      await joinGame(nickname.trim());
+      console.log("✓ Successfully joined game");
+      
+      // Wait a bit for state to sync
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Use hard redirect to ensure page loads
+      window.location.href = `/game/${playerNumber}`;
+    } catch (err: any) {
+      console.error("Failed to join:", err);
+      setError(err.message || "Failed to join game. Please try again.");
+      setIsJoining(false);
+    }
+  };
+
   return (
     <main
-      className={`min-h-screen w-full relative overflow-hidden flex flex-col items-center justify-center `}
+      className="min-h-screen w-full relative overflow-hidden flex flex-col items-center justify-center"
       style={{
         background: "linear-gradient(180deg, #77F0FC 0%, #19D3F9 100%)",
       }}
     >
+      {/* Background decorations */}
       <img
         src="/water-bubbles.svg"
         className="absolute z-3 top-0 left-[150px] animate-bubbles animation-delay-2000"
         alt=""
       />
-      <img alt="" />
       <img src="/sea-walls.png" className="absolute z-3 top-0 left-0" alt="" />
       <img
         src="/reflection-lights.svg"
@@ -23,104 +61,69 @@ function page() {
         alt=""
       />
 
-      <div
-        className="border border-[#F9F9F9] relative z-100 -mt-20 text-[22px]/[100%]  rounded-lg bg-[#40FFFC03] w-[719px] p-8"
+      {/* Main content */}
+      <div className="relative z-20 bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 border-2 border-[#D0EEF5]"
         style={{
-          backdropFilter: "blur(1000px)",
-          WebkitBackdropFilter: "blur(1000px)",
           boxShadow: "0px -3px 4px 0px #FFFFFF40, -3px 0px 4px 0px #FFFFFF40",
         }}
       >
-        <form action="" className="px-3 mb-[50px]">
-          <div className="space-y-3 mb-5">
-            <label
-              htmlFor="username"
-              className="text-[#01626F] font-lilitaone block py-2"
-            >
-              Enter Username
-            </label>
-            <input
-              type="text"
-              placeholder="Jonnie14"
-              style={{
-                boxShadow:
-                  "4px 2px 5px 0px #FFFFFF40 inset, 1px -2px 5px 0px #FFFFFF4D inset",
-                backdropFilter: "blur(70px)",
-                WebkitBackdropFilter: "blur(70px)",
-              }}
-              className="py-3 px-[22px] text-lg rounded-lg border w-full border-[#D0EEF5] bg-[#B8F7FF03] text-[#01626F] placeholder:text-[#6CA0A7] font-satoshi font-medium"
-            />
+        <h1 className="text-4xl font-bold text-center mb-2 text-[#01626F] font-lilitaone">
+          Join Game
+        </h1>
+        <p className="text-center text-[#6CA0A7] mb-6 text-lg">
+          Player {playerNumber}
+        </p>
+
+        <div className="mb-6">
+          <label className="block text-[#01626F] font-semibold mb-2 text-lg font-lilitaone">
+            Enter your nickname:
+          </label>
+          <input
+            type="text"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && !isJoining && handleJoin()}
+            placeholder="e.g., CardMaster"
+            className="w-full px-4 py-3 border-2 border-[#D0EEF5] bg-[#B8F7FF03] rounded-lg focus:outline-none focus:border-[#0FB6C6] text-lg text-[#01626F] placeholder:text-[#6CA0A7]"
+            disabled={isJoining}
+            maxLength={20}
+            autoFocus
+            style={{
+              boxShadow: "4px 2px 5px 0px #FFFFFF40 inset, 1px -2px 5px 0px #FFFFFF4D inset",
+            }}
+          />
+          <p className="text-xs text-[#6CA0A7] mt-1">Max 20 characters</p>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
           </div>
-
-          <div className="space-y-3 mb-5">
-            <label
-              htmlFor="username"
-              className="text-[#01626F] font-lilitaone block py-2"
-            >
-              Select avatar
-            </label>
-
-            <div className="py-2 px-[22px] flex gap-x-2">
-              <button>
-                <img src="/user-pfp.svg" alt="" />
-              </button>
-              <button>
-                <img src="/user-pfp-2.svg" alt="" />
-              </button>
-              <button>
-                <img src="/user-pfp-3.svg" alt="" />
-              </button>
-              <button>
-                <img src="/user-pfp-4.svg" alt="" />
-              </button>
-              <button>
-                <img src="/user-pfp-5.svg" alt="" />
-              </button>
-              <button>
-                <img src="/user-pfp-6.svg" alt="" />
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-3 mb-5 border-t border-t-[#D0EEF5] py-1">
-            <label
-              htmlFor="username"
-              className="text-[#01626F] font-lilitaone block py-2"
-            >
-              Select color
-            </label>
-
-            <div className="py-2 px-[22px] flex gap-x-2">
-              <button className="w-[57px] h-[57px] rounded-full border-[1.2px] border-[#F9F9F9] bg-[#88D0E1]" />
-              <button className="w-[57px] h-[57px] rounded-full border-[1.2px] border-[#F9F9F9] bg-[#7977FC]" />
-              <button className="w-[57px] h-[57px] rounded-full border-[1.2px] border-[#F9F9F9] bg-[#1EC8D1]" />
-              <button className="w-[57px] h-[57px] rounded-full border-[1.2px] border-[#F9F9F9] bg-[#8C1ED1]" />
-              <button className="w-[57px] h-[57px] rounded-full border-[1.2px] border-[#F9F9F9] bg-[#DD7496]" />
-              <button className="w-[57px] h-[57px] rounded-full border-[1.2px] border-[#F9F9F9] bg-[#E49564]" />
-            </div>
-          </div>
-        </form>
+        )}
 
         <button
-          onClick={() => {
-            router.push("/game/1");
-          }}
-          className="flex items-center gap-x-2 mb-4 bg-[#0FB6C6] border-[0.2px] border-[#D0EEF5] w-full py-3 text-[#F9F9F9] justify-center rounded-[13px] text-[32px]/[100%]"
+          onClick={handleJoin}
+          disabled={isJoining || !nickname.trim()}
+          className="w-full bg-[#0FB6C6] hover:bg-[#0DA5B5] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg text-xl transition-colors font-lilitaone"
           style={{
             boxShadow: "2.65px 1.33px 3.1px 0px #6CEDFC40 inset",
-            backdropFilter: "blur(221.15200805664062px)",
-            WebkitBackdropFilter: "blur(221.15200805664062px)",
           }}
         >
-          next <img src="/coin.svg" className="w-7 h-7" alt="" />
+          {isJoining ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Joining...
+            </span>
+          ) : (
+            "Join Game"
+          )}
         </button>
-
-        <p className="py-2 text-[#01626F] font-satoshi text-base/[100%]">
-          Note: by registering you get an automatic{" "}
-          <span className="font-bold">30</span> coins!!!
-        </p>
       </div>
 
+      {/* Bottom decoration */}
       <div
         className="absolute bottom-0 w-full h-[150px] z-10 rounded-t-[50%]"
         style={{
@@ -129,39 +132,6 @@ function page() {
           boxShadow: "0px 12px 18px 0px #E8FABC inset",
         }}
       ></div>
-
-      <div className="absolute bottom-4 left-4 z-30 w-[384px] h-[214px] animate-float animate-float-delayed">
-        <img
-          src="/cards.svg"
-          alt="Cards"
-          className="w-full h-full object-contain"
-        />
-      </div>
-
-      <div className="absolute bottom-[-55px] left-0 z-20 w-[590px] h-[654px] opacity-90 animate-sway">
-        <img
-          src="/weed-rock.svg"
-          alt="Seaweed"
-          className="w-full h-full object-contain"
-        />
-      </div>
-
-      <div className="absolute bottom-0 right-[-110px] z-20 w-[530px] h-[800px] opacity-90 animate-sway">
-        <img
-          src="/sea-weed-1.svg"
-          alt="Seaweed"
-          className="w-full h-full object-contain"
-        />
-      </div>
-      <div className="absolute bottom-0 right-0 z-20 w-[530px] h-[800px] opacity-90 animate-sway">
-        <img
-          src="/sea-weed-2.svg"
-          alt="Seaweed"
-          className="w-full h-full object-contain "
-        />
-      </div>
     </main>
   );
 }
-
-export default page;

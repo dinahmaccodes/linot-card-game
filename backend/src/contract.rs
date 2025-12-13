@@ -28,7 +28,7 @@ impl Contract for LinotContract {
     type Message = Message;
     type Parameters = ();
     type InstantiationArgument = MatchConfig;
-    type EventValue = GameEvent;
+    type EventValue = GameEvent; // TODO: Migrate to WhotEvent in Phase 2
 
     async fn load(runtime: ContractRuntime<Self>) -> Self {
         let state = LinotState::load(runtime.root_view_storage_context())
@@ -64,6 +64,9 @@ impl Contract for LinotContract {
             .ok_or(LinotError::CallerRequired)
             .expect("Caller required");
 
+        // Check if we are connected to a remote Play Chain
+        let play_chain_id = self.state.active_game_chain_id.get();
+
         let result = match operation {
             Operation::JoinMatch { nickname } => {
                 self.handle_join_match(caller, nickname).await
@@ -71,40 +74,77 @@ impl Contract for LinotContract {
             Operation::JoinFromChain { host_chain_id, nickname } => {
                 self.handle_join_from_chain(host_chain_id, nickname).await
             }
+            // For game actions: Check if we are a User Chain (connected to remote)
             Operation::StartMatch => {
+                 // StartMatch is usually host-only, so executed locally on Play Chain
+                println!("DEBUG: Operation::StartMatch called by {:?}", caller);
                 self.handle_start_match(caller).await
             }
-            Operation::PlayCard {
-                card_index,
-                chosen_suit,
-            } => {
-                self.handle_play_card(caller, card_index, chosen_suit).await
+            Operation::PlayCard { card_index, chosen_suit } => {
+                if let Some(target_chain) = play_chain_id {
+                    // Send message to Play Chain
+                    let message = Message::PlayCard { player: caller, card_index, chosen_suit };
+                    self.runtime.send_message(*target_chain, message);
+                    Ok(())
+                } else {
+                    // Local execution (Host/Single Chain)
+                    self.handle_play_card(caller, card_index, chosen_suit).await
+                }
             }
             Operation::DrawCard => {
-                self.handle_draw_card(caller).await
+                if let Some(target_chain) = play_chain_id {
+                    let message = Message::DrawCard { player: caller };
+                    self.runtime.send_message(*target_chain, message);
+                    Ok(())
+                } else {
+                    self.handle_draw_card(caller).await
+                }
             }
             Operation::CallLastCard => {
-                self.handle_call_last_card(caller).await
+                if let Some(target_chain) = play_chain_id {
+                    let message = Message::CallLastCard { player: caller };
+                    self.runtime.send_message(*target_chain, message);
+                    Ok(())
+                } else {
+                    self.handle_call_last_card(caller).await
+                }
             }
             Operation::ChallengeLastCard { player_index } => {
-                self.handle_challenge_last_card(caller, player_index).await
+                 if let Some(target_chain) = play_chain_id {
+                    let message = Message::ChallengeLastCard { player: caller, target_index: player_index };
+                    self.runtime.send_message(*target_chain, message);
+                    Ok(())
+                } else {
+                    self.handle_challenge_last_card(caller, player_index).await
+                }
             }
             Operation::LeaveMatch => {
-                self.handle_leave_match(caller).await
+                if let Some(target_chain) = play_chain_id {
+                    let message = Message::LeaveMatch { player: caller };
+                    self.runtime.send_message(*target_chain, message);
+                    // Also clear local state
+                    self.state.active_game_chain_id.set(None);
+                    Ok(())
+                } else {
+                    self.handle_leave_match(caller).await
+                }
             }
             Operation::CheckTimeout => {
-                self.handle_check_timeout().await
+                 if let Some(target_chain) = play_chain_id {
+                     // Check timeout on the Play Chain
+                    let message = Message::CheckTimeout;
+                    self.runtime.send_message(*target_chain, message);
+                    Ok(())
+                } else {
+                    self.handle_check_timeout().await
+                }
             }
-            Operation::PlaceBet {
-                player_index: _,
-                amount: _,
-            } => {
+            Operation::PlaceBet { .. } => {
                 Err(LinotError::BettingNotImplemented)
             }
         };
 
-        // Panic on error to maintain existing behavior
-        // TODO: Return Result from execute_operation in future
+        // The Contract trait requires Response = (), so we can't return Result
         if let Err(e) = result {
             panic!("Operation failed: {}", e);
         }
@@ -113,34 +153,122 @@ impl Contract for LinotContract {
     async fn execute_message(&mut self, message: Self::Message) {
         let result = match message {
             Message::JoinRequest { player, nickname } => {
-                // Handle cross-chain join request
+                // PLAY_CHAIN: Handle cross-chain join request
+                // Get the origin chain ID (player's USER_CHAIN)
+                let origin_chain = self.runtime.message_origin_chain_id().expect("Message origin required");
+                
                 let join_result = self.handle_join_match(player, nickname.clone()).await;
                 
                 if join_result.is_ok() {
+                    // Store the player's chain ID for event routing
+                    let mut match_data = self.state.match_data.get();
+                    if let Some(joined_player) = match_data.players.iter_mut().find(|p| p.owner == player) {
+                        joined_player.chain_id = Some(origin_chain);
+                    }
+                    self.state.match_data.set(match_data.clone());
+                    
                     // Emit event that player joined
-                    let match_data = self.state.match_data.get();
                     let event = GameEvent::PlayerJoined {
                         nickname: nickname.clone(),
                         player_count: match_data.players.len(),
                     };
                     self.runtime.emit(StreamName::from(GAME_EVENTS_STREAM), &event);
                     
-                    // Send initial state sync back to the joining player
-                    // Note: In Linera, messages are sent to chains, not directly to AccountOwners
-                    // For now, we'll skip sending the sync message since the player can query state via GraphQL
-                    // In a full implementation, we'd track player chain IDs separately
+                    // Send initial state sync back to the joining player (User Chain)
+                    let sync_msg = Message::InitialStateSync {
+                        config: self.state.config.get().clone(),
+                        players: match_data.players.iter().map(|p| p.nickname.clone()).collect(),
+                        status: match match_data.status {
+                            MatchStatus::Waiting => 0,
+                            MatchStatus::InProgress => 1,
+                            MatchStatus::Finished => 2,
+                        },
+                    };
+                    self.runtime.send_message(origin_chain, sync_msg);
                 }
                 
                 join_result
             }
+            Message::PlayCard { player, card_index, chosen_suit } => {
+                self.handle_play_card(player, card_index, chosen_suit).await
+            }
+            Message::DrawCard { player } => {
+                self.handle_draw_card(player).await
+            }
+            Message::CallLastCard { player } => {
+                self.handle_call_last_card(player).await
+            }
+            Message::ChallengeLastCard { player, target_index } => {
+                self.handle_challenge_last_card(player, target_index).await
+            }
+            Message::LeaveMatch { player } => {
+                self.handle_leave_match(player).await
+            }
+            Message::CheckTimeout => {
+                self.handle_check_timeout().await
+            }
             Message::InitialStateSync { config: _, players: _, status: _ } => {
-                // Player receives initial state from host
-                // In V1, we don't need to process this on contract side
-                // The frontend will handle this via GraphQL queries
+                // User Chain: Received initial state from Host Chain
+                // Store connection confirmed
+                self.state.active_game_chain_id.set(Some(self.runtime.message_origin_chain_id().unwrap()));
+                
+                // Emit event to notify frontend of successful connection
+                let _event = GameEvent::MatchStarted { // Using MatchStarted as a proxy for "Connection Established" for now or add a new event
+                     first_player: "".to_string(), // Placeholder
+                     top_card: linot::Card { suit: linot::CardSuit::Circle, value: linot::CardValue::One }, // Placeholder
+                };
+                // Actually, let's just log it for now as V1 doesn't have UserStatus in state yet
+                println!("DEBUG: User Chain connected to Host Chain: {:?}", self.state.active_game_chain_id.get());
                 Ok(())
             }
             Message::GameEvent { event } => {
-                // Broadcast game event to subscribers
+                // USER_CHAIN: Update local state cache from PLAY_CHAIN event
+                // This is the critical synchronization mechanism!
+                let mut match_data = self.state.match_data.get();
+                
+                match &event {
+                    GameEvent::PlayerJoined { nickname, player_count } => {
+                        // Update player count (we don't have full player details yet)
+                        println!("DEBUG: EVENT Player joined: {}, count: {}", nickname, player_count);
+                    }
+                    GameEvent::MatchStarted { first_player, top_card } => {
+                        // Update status to InProgress
+                        match_data.status = MatchStatus::InProgress;
+                        if !match_data.discard_pile.is_empty() {
+                            match_data.discard_pile.clear();
+                        }
+                        match_data.discard_pile.push(top_card.clone());
+                        println!("DEBUG: EVENT Match started, first player: {}", first_player);
+                    }
+                    GameEvent::CardPlayed { player, card, next_player, special_effect } => {
+                        // Update discard pile with played card
+                        match_data.discard_pile.push(card.clone());
+                        println!("DEBUG: EVENT Card played by {}: {:?}, next: {}, effect: {:?}", 
+                                 player, card, next_player, special_effect);
+                    }
+                    GameEvent::CardsDrawn { player, count, next_player } => {
+                        println!("DEBUG: EVENT {} drew {} cards, next: {}", player, count, next_player);
+                    }
+                    GameEvent::MatchEnded { winner, winner_index } => {
+                        match_data.status = MatchStatus::Finished;
+                        match_data.winner_index = Some(*winner_index);
+                        println!("DEBUG: EVENT Match ended, winner: {} (index {})", winner, winner_index);
+                    }
+                    GameEvent::PlayerLeft { nickname } => {
+                        println!("DEBUG: EVENT Player left: {}", nickname);
+                    }
+                    GameEvent::TurnTimeoutWarning { player } => {
+                        println!("DEBUG: EVENT Turn timeout warning for: {}", player);
+                    }
+                    GameEvent::TurnTimeout { player, auto_drawn } => {
+                        println!("DEBUG: EVENT Turn timeout for: {}, auto drew: {}", player, auto_drawn);
+                    }
+                }
+                
+                // Save updated state
+                self.state.match_data.set(match_data);
+                
+                // Re-broadcast event to local subscribers (frontend)
                 self.runtime.emit(StreamName::from(GAME_EVENTS_STREAM), &event);
                 Ok(())
             }
@@ -181,6 +309,7 @@ impl LinotContract {
 
         // Add player
         match_data.players.push(Player::new(caller, nickname.clone()));
+        println!("DEBUG: Player joined. Total players: {}", match_data.players.len());
         self.state.match_data.set(match_data.clone());
         
         // Emit event
@@ -199,9 +328,16 @@ impl LinotContract {
         
         // Parse host chain ID
         let host_chain = host_chain_id.parse()
-            .map_err(|_| LinotError::CallerRequired)?; // Reuse error for simplicity
+            .map_err(|_| LinotError::InvalidChainId(host_chain_id.clone()))?;
         
-        // Send cross-chain join request message
+        // 1. Subscribe to events from host chain (Hub-and-Spoke pattern)
+        let app_id = self.runtime.application_id().forget_abi();
+        self.runtime.subscribe_to_events(host_chain, app_id, StreamName::from(GAME_EVENTS_STREAM));
+
+        // 2. Store the host chain ID as our active game chain
+        self.state.active_game_chain_id.set(Some(host_chain));
+        
+        // 3. Send cross-chain join request message
         let message = Message::JoinRequest {
             player: caller,
             nickname,
@@ -226,13 +362,17 @@ impl LinotContract {
             return Err(LinotError::OnlyHostCanStart);
         }
 
+        println!("DEBUG: handle_start_match. Players: {}", match_data.players.len());
+
         // Validate: enough players (2 for V1)
         if match_data.players.len() < 2 {
+            println!("ERROR: Not enough players: {}", match_data.players.len());
             return Err(LinotError::NotEnoughPlayers(2));
         }
 
         // Validate: match is waiting
         if match_data.status != MatchStatus::Waiting {
+            println!("ERROR: Match already started");
             return Err(LinotError::MatchAlreadyStarted);
         }
 

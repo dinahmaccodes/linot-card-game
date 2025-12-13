@@ -3,12 +3,15 @@
 /target/
 # Ignore backend target specifically
 /backend/target/
-
+/old-docker-guide/
 ### Linera Protocol Source (not needed for demo)
 /linera-protocol/
 /inspo-zone
 /inspo-multi
 /docs/previous-waves
+/template/
+/docs/wave_4_revamp
+docs/regression_tests 
 ### Internal/Development Documentation (not for judges)
 # Wave 2 internal tracking files
 DEPLOYMENT_GUIDE.md
@@ -33,7 +36,7 @@ WAVE2_SUMMARY.md
 /docs/details.md
 
 # Template folder (unused)
-/template/
+# /template/
 # dependency directories
 /frontend/node_modules/
 

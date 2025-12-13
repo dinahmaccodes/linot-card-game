@@ -1,0 +1,12 @@
+{
+  "applicationId": "6cefe96b9caed734cd60f381096f9a1db499a3e45ec5d352464dcfe9f73834ae",
+  "playChain": "f7e93fb709c6e57d2ff6e3bfa766f75239a8d6d3252d05c00b315b121aa77f15",
+  "playerNumber": 2,
+  "endpoints": [
+    {
+      "chainId": "8f474c9a35d108ab987a80e77aa8851bdfdaca5a7d7aa2b9878bb6b3a1268118",
+      "owner": "0x11163dec3a96e5276093e5d1ff5e653b127db353da4b58b077d6d886787d5305",
+      "url": "http://localhost:8082"
+    }
+  ]
+}

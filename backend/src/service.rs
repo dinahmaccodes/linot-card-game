@@ -4,16 +4,19 @@ mod state;
 
 use async_graphql::{Context, EmptySubscription, Object, Request, Response, Schema};
 use linera_sdk::{
-    abi::WithServiceAbi, linera_base_types::AccountOwner, views::View, Service, ServiceRuntime,
+    abi::WithServiceAbi, graphql::GraphQLMutationRoot, linera_base_types::AccountOwner, views::View,
+    Service, ServiceRuntime,
 };
 use std::sync::Arc;
 
 use crate::state::{LinotState, MatchData, MatchStatus};
-use linot::{Card, CardSuit, LinotAbi, MatchConfig};
+use linot::{Card, CardSuit, LinotAbi, MatchConfig, Operation};
 
 /// GraphQL service for querying Linot match state
+#[derive(Clone)]
 pub struct LinotService {
     state: Arc<LinotState>,
+    runtime: Arc<ServiceRuntime<Self>>,
 }
 
 linera_sdk::service!(LinotService);
@@ -31,13 +34,14 @@ impl Service for LinotService {
             .expect("Failed to load state");
         LinotService {
             state: Arc::new(state),
+            runtime: Arc::new(runtime),
         }
     }
 
     async fn handle_query(&self, request: Request) -> Response {
         let schema = Schema::build(
             QueryRoot,
-            async_graphql::EmptyMutation,
+            Operation::mutation_root(self.runtime.clone()),
             EmptySubscription,
         )
         .data(self.state.clone())
@@ -130,40 +134,12 @@ impl QueryRoot {
     }
 
     /// Get a specific player's view (includes their cards but hides opponent cards)
-    async fn player_view(&self, ctx: &Context<'_>, player: AccountOwner) -> Option<PlayerView> {
+    async fn player_view(&self, ctx: &Context<'_>, player: AccountOwner) -> Option<crate::state::PlayerView> {
         let state = ctx.data_unchecked::<Arc<LinotState>>();
         let match_data = state.match_data.get();
-
-        // Find the requesting player
-        let player_data = match_data.players.iter().find(|p| p.owner == player)?;
-
-        // Build opponent info (without cards)
-        let opponents: Vec<PublicPlayer> = match_data
-            .players
-            .iter()
-            .filter(|p| p.owner != player)
-            .map(|p| PublicPlayer {
-                owner: p.owner,
-                nickname: p.nickname.clone(),
-                card_count: p.card_count,
-                is_active: p.is_active,
-                called_last_card: p.called_last_card,
-            })
-            .collect();
-
-        Some(PlayerView {
-            my_cards: player_data.cards.clone(),
-            my_card_count: player_data.card_count,
-            called_last_card: player_data.called_last_card,
-            opponents,
-            top_card: match_data.discard_pile.last().cloned(),
-            deck_size: match_data.deck.len(),
-            current_player_index: match_data.current_player_index,
-            status: match_data.status,
-            active_shape_demand: match_data.active_shape_demand,
-            pending_penalty: match_data.pending_penalty,
-            winner_index: match_data.winner_index,
-        })
+        
+        // Use the helper method from MatchData
+        match_data.get_player_view(&player)
     }
 
     /// Get the winner (if match is finished)
@@ -201,30 +177,5 @@ struct PublicPlayer {
     called_last_card: bool,
 }
 
-/// Player-specific view (includes player's cards, hides opponent cards)
-#[derive(async_graphql::SimpleObject)]
-struct PlayerView {
-    /// Your cards
-    my_cards: Vec<Card>,
-    /// Your card count
-    my_card_count: usize,
-    /// Whether you called last card
-    called_last_card: bool,
-    /// Opponent info (without their cards)
-    opponents: Vec<PublicPlayer>,
-    /// Top card in discard pile
-    top_card: Option<Card>,
-    /// Cards remaining in deck
-    deck_size: usize,
-    /// Index of current player
-    current_player_index: usize,
-    /// Match status
-    status: MatchStatus,
-    /// Active shape demand (from Whot card)
-    active_shape_demand: Option<CardSuit>,
-    /// Pending penalty cards
-    pending_penalty: u8,
-    /// Winner index (if finished)
-    winner_index: Option<usize>,
-}
+// PlayerView and OpponentView are defined in state.rs and re-exported
 
