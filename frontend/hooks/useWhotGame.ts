@@ -72,7 +72,7 @@ export function useWhotGame(playerNumber: 1 | 2) {
     }
   }, [playerNumber]);
 
-  // Poll every 500ms (Linera/Microcard pattern)
+  // Poll every 500ms (Linera pattern)
   useEffect(() => {
     let mounted = true;
     let intervalId: NodeJS.Timeout;

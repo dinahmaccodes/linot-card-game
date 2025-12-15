@@ -24,7 +24,7 @@ export SERVICE_PORT_1=8081
 export SERVICE_PORT_2=8082
 LINERA_TMP_DIR=/tmp/linera_whot
 
-# Remove old data (microcard pattern)
+# Remove old data 
 echo "Cleaning up old state..."
 rm -rf $LINERA_TMP_DIR
 mkdir -p $LINERA_TMP_DIR
@@ -47,7 +47,7 @@ echo "Waiting for network to initialize..."
 sleep 12
 
 # -----------------------------------------------------------------------------------------------------------------
-# Create Wallets and Extract Chain IDs (microcard mapfile pattern)
+# Create Wallets and Extract Chain IDs (inspo mapfile pattern)
 # -----------------------------------------------------------------------------------------------------------------
 echo "Creating Player 1 wallet..."
 linera --with-wallet 1 wallet init --faucet "$LINERA_FAUCET_URL"
@@ -93,14 +93,14 @@ cargo build --release --target wasm32-unknown-unknown
 cd ..
 
 # -----------------------------------------------------------------------------------------------------------------
-# Deploy Application (microcard pattern: project publish-and-create)
+# Deploy Application (inspo pattern: project publish-and-create)
 # -----------------------------------------------------------------------------------------------------------------
 echo "Deploying application..."
 echo "NOTE: This may take 10-30 seconds..."
 
 cd backend
 
-# Use project publish-and-create from backend directory (microcard pattern)
+# Use project publish-and-create from backend directory (inspo pattern)
 DEPLOY_OUTPUT=$(linera --with-wallet 1 --wait-for-outgoing-messages project publish-and-create . linot \
   --json-parameters "{
   \"max_players\": 2,
@@ -145,7 +145,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------------------------------------------
-# Setup Player Directories (microcard pattern)
+# Setup Player Directories (inspo pattern)
 # -----------------------------------------------------------------------------------------------------------------
 echo "Creating player frontend directories..."
 mkdir -p frontend/web_p1 frontend/web_p2
@@ -155,7 +155,7 @@ cp -r frontend/out/. frontend/web_p1/
 cp -r frontend/out/. frontend/web_p2/
 
 # -----------------------------------------------------------------------------------------------------------------
-# Generate config.json (using jq like microcard)
+# Generate config.json (using jq like inspo)
 # -----------------------------------------------------------------------------------------------------------------
 echo "Generating config.json for Player 1..."
 jq -n \
