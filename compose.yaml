@@ -2,8 +2,7 @@ services:
   whot:
     build: .
     ports:
-      - "3001:3001"   # Player 1 Frontend
-      - "3002:3002"   # Player 2 Frontend
+      - "3000:3000"   # Frontend
       - "8080:8080"   # Faucet
       - "8081:8081"   # Player 1 GraphQL
       - "8082:8082"   # Player 2 GraphQL
@@ -12,8 +11,6 @@ services:
     hostname: whot
     networks:
       - whot-network
-    dns:
-      - 8.8.8.8
 
 networks:
   whot-network:

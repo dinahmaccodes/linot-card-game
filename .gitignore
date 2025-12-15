@@ -4,12 +4,14 @@
 # Ignore backend target specifically
 /backend/target/
 /old-docker-guide/
+/old-one
 ### Linera Protocol Source (not needed for demo)
 /linera-protocol/
 /inspo-zone
 /inspo-multi
-/docs/previous-waves
+/docs/linera_doc_details
 /template/
+/docs/previous-waves
 /docs/wave_4_revamp
 docs/regression_tests 
 ### Internal/Development Documentation (not for judges)

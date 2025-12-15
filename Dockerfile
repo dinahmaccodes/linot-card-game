@@ -1,4 +1,4 @@
-FROM rust:1.86-slim
+FROM rust:1.86.0-slim
 
 SHELL ["bash", "-c"]
 
@@ -7,23 +7,19 @@ RUN apt-get update && apt-get install -y \
     protobuf-compiler \
     clang \
     make \
-    jq
+    curl
 
-RUN cargo install --locked linera-service@0.15.4 linera-storage-service@0.15.4 \
-    && rustup target add wasm32-unknown-unknown
+RUN cargo install --locked linera-service@0.15.6 linera-storage-service@0.15.6
 
-# Install curl for healthcheck
-RUN apt-get update && apt-get install -y curl
-
-# Install Node.js v20 by copying from official image
-# This ensures we have the correct version for Next.js 16 and avoids build-time DNS issues with apt repos
-COPY --from=node:20-bookworm-slim /usr/local/ /usr/local/
-
-# Install global packages
-RUN npm install -g http-server
+# Install Node.js via NVM (template pattern)
+RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.40.3/install.sh | bash \
+    && . ~/.nvm/nvm.sh \
+    && nvm install lts/hydrogen \
+    && nvm use lts/hydrogen \
+    && npm install -g http-server
 
 WORKDIR /build
 
-HEALTHCHECK CMD ["curl", "-s", "http://localhost:3001"]
+HEALTHCHECK CMD ["curl", "-s", "http://localhost:5173"]
 
 ENTRYPOINT bash /build/run.bash

@@ -8,31 +8,28 @@ export interface LineraConfig {
   applicationId: string;
   playChain: string;
   endpoints: PlayerEndpoint[];
-  playerNumber?: number;
 }
 
 export class LineraClient {
   private config: LineraConfig;
   private playerNumber: number;
 
-  constructor(config: LineraConfig) {
+  constructor(config: LineraConfig, playerNumber: number = 1) {
     this.config = config;
-    this.playerNumber = 1; // Default to 1, effectively ignored as we use endpoint[0]
+    this.playerNumber = playerNumber;
   }
 
   private getEndpoint(): PlayerEndpoint {
-    // simplified: always use the first (and only) endpoint in the list
-    const endpoint = this.config.endpoints[0];
+    const endpoint = this.config.endpoints[this.playerNumber - 1];
     if (!endpoint) {
-      throw new Error(`No endpoint configured in config.json`);
+      throw new Error(`No endpoint configured for player ${this.playerNumber}`);
     }
     return endpoint;
   }
 
-  async query<T>(query: string, variables?: Record<string, any>, chainId?: string): Promise<T> {
+  async query<T>(query: string, variables?: Record<string, any>): Promise<T> {
     const endpoint = this.getEndpoint();
-    const targetChainId = chainId || endpoint.chainId;
-    const url = `${endpoint.url}/chains/${targetChainId}/applications/${this.config.applicationId}`;
+    const url = `${endpoint.url}/chains/${endpoint.chainId}/applications/${this.config.applicationId}`;
 
     const response = await fetch(url, {
       method: "POST",
@@ -55,18 +52,13 @@ export class LineraClient {
 
   async mutate<T>(
     mutation: string,
-    variables?: Record<string, any>,
-    chainId?: string
+    variables?: Record<string, any>
   ): Promise<T> {
-    return this.query<T>(mutation, variables, chainId);
+    return this.query<T>(mutation, variables);
   }
 
   getOwner(): string {
     return this.getEndpoint().owner;
-  }
-
-  getChainId(): string {
-    return this.getEndpoint().chainId;
   }
 }
 
@@ -85,9 +77,9 @@ export function getGlobalConfig(): LineraConfig {
   return globalConfig;
 }
 
-export function createLineraClient(playerNumber?: number): LineraClient {
+export function createLineraClient(playerNumber: number): LineraClient {
   const config = getGlobalConfig();
-  return new LineraClient(config);
+  return new LineraClient(config, playerNumber);
 }
 
 /**

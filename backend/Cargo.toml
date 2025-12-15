@@ -1,37 +1,28 @@
-[workspace]
-members = ["abi", "."]
-
-[workspace.dependencies]
-async-graphql = { version = "=7.0.17", default-features = false }
-linera-sdk = "0.15.4"
-serde = { version = "1.0", features = ["derive"] }
-thiserror = "1.0"
-
 [package]
-name = "backend"
+name = "linot"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-whot-abi = { path = "abi" }
-async-graphql.workspace = true
-linera-sdk.workspace = true
-linera-views = "0.15.4"
-futures = { version = "0.3 "}
-serde.workspace = true
-serde_json = { version = "1.0" }
-thiserror.workspace = true
+async-graphql = { version = "7.0.17", default-features = false }
+linera-sdk = "0.15.6"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+log = "0.4"
+getrandom = { version = "0.2.15", default-features = false, features = ["custom"] }
 
 [dev-dependencies]
-linera-sdk = { version = "0.15.4", features = ["test", "wasmer"] }
-tokio = { version = "1.40", features = ["rt", "sync"] }
+
+[lib]
+name = "linot"
+path = "src/lib.rs"
 
 [[bin]]
-name = "backend_contract"
+name = "linot_contract"
 path = "src/contract.rs"
 
 [[bin]]
-name = "backend_service"
+name = "linot_service"
 path = "src/service.rs"
 
 [profile.release]
@@ -39,7 +30,3 @@ debug = true
 lto = true
 opt-level = 'z'
 strip = 'debuginfo'
-
-[lib]
-name = "linot"
-path = "src/lib.rs"

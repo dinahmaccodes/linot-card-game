@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+# Quick test following inspo's exact pattern
 set -eu
 
-echo " Quick Whot Test "
+echo "🎮 Quick Whot Test (Inspo Pattern)"
 
 # Kill existing
 pkill -f "linera" 2>/dev/null || true
@@ -15,7 +16,7 @@ LINERA_MAX_PENDING_MESSAGES=10000
 
 export PATH="$PWD/target/debug:$PATH"
 
-# Start network with helper
+# Start network with helper (inspo way)
 echo "🚀 Starting network..."
 source /dev/stdin <<<"$(linera net helper 2>/dev/null)"
 linera_spawn linera net up --initial-amount 1000000000 --with-faucet --faucet-port $FAUCET_PORT
@@ -23,7 +24,7 @@ sleep 10
 
 FAUCET_URL="http://localhost:$FAUCET_PORT"
 
-# Wallets using LINERA_TMP_DIR 
+# Wallets using LINERA_TMP_DIR (Inspo pattern)
 export LINERA_WALLET_1="$LINERA_TMP_DIR/wallet_1.json"
 export LINERA_KEYSTORE_1="$LINERA_TMP_DIR/keystore_1.json"
 export LINERA_STORAGE_1="rocksdb:$LINERA_TMP_DIR/client_1.db"

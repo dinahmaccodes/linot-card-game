@@ -1,0 +1,11 @@
+:HL["/_next/static/chunks/e868f7fbdc3e5952.css","style"]
+:HL["/_next/static/media/8e87afa7481d865d-s.p.2d459580.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/Satoshi_Bold-s.p.fc9d5d15.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/Satoshi_Medium-s.p.eae7bb78.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/Satoshi_Regular-s.p.8b170606.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/c432471d2cba538b-s.p.efda4bc0.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/logo.svg","image"]
+:HL["/coin.svg","image"]
+:HL["/people.svg","image"]
+:HL["/user-pfp.svg","image"]
+0:{"buildId":"kHkQntp4FAWm35Mbw48ro","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"game","paramType":null,"paramKey":"game","hasRuntimePrefetch":false,"slots":{"children":{"name":"id","paramType":"d","paramKey":"3","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
