@@ -1,6 +1,9 @@
+"use client";
 import type { Metadata } from "next";
 import { Titan_One, Lilita_One, Poppins } from "next/font/google";
 import localFont from "next/font/local";
+import { useEffect, useState } from "react";
+import { loadConfig } from "@/lib/lineraClient";
 import "./globals.css";
 
 // Load the font
@@ -49,6 +52,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [configLoaded, setConfigLoaded] = useState(false);
+
+  useEffect(() => {
+    loadConfig()
+      .then(() => {
+        setConfigLoaded(true);
+        console.log("Linera config loaded successfully");
+      })
+      .catch((err) => {
+        console.error("Failed to load Linera config:", err);
+        setConfigLoaded(true); // Continue anyway
+      });
+  }, []);
+
   return (
     <html lang="en">
       <body

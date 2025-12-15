@@ -1,36 +1,43 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import LiveChat from "../components/LiveChat";
 import Timer from "../components/Timer";
 import GamePlayersTab from "../components/GamePlayersTab";
 import DrawPile from "../components/DrawPile";
 import PlayerTwo from "../components/PlayerTwo";
 import PlayerOne from "../components/PlayerOne";
-import { Card, GameState } from "@/lib/types";
-import { drawFromPile, playCard, startGame } from "@/lib/gameEngine";
+import { useWhotGame } from "@/hooks/useWhotGame";
 
 function page() {
-  const [state, setState] = useState<GameState | null>(null);
+  const searchParams = useSearchParams();
+  const playerParam = searchParams.get("player");
+  const playerNumber = (playerParam === "2" ? 2 : 1) as 1 | 2;
+  
+  const { gameState, loading, error, playCard, drawCard, callLastCard } = useWhotGame(playerNumber);
 
-  function handleStartGame() {
-    const newGame = startGame();
-    setState(newGame);
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-2xl text-[#01626F]">Loading game...</p>
+      </div>
+    );
   }
 
-  function handleDraw() {
-    if (!state) return;
-    const next = drawFromPile(state, "P1");
-    setState(next);
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-2xl text-red-600">Error: {error.message}</p>
+      </div>
+    );
   }
 
-  function handlePlay(player: "P1" | "P2", card: Card) {
-    if (!state) return;
-    const next = playCard(state, player, card);
-    setState(next);
-  }
-
-  if (!state?.gameStarted) {
-    return <button onClick={handleStartGame}>Start Game</button>;
+  if (!gameState) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-2xl text-[#01626F]">No game state available</p>
+      </div>
+    );
   }
 
   return (
@@ -40,15 +47,28 @@ function page() {
         <Timer />
       </div>
       <div className="flex-1 space-y-20">
-        {/* <PlayerTwo hand={state.playerTwoHand} /> */}
-        <PlayerTwo />
+        <PlayerTwo 
+          opponent={gameState.opponents[0]} 
+          topCard={gameState.topCard}
+        />
         <img src="/middle-cards.png" className="mx-auto" alt="" />
-        {/* <PlayerOne hand={state.playerOneHand} /> */}
-        <PlayerOne />
+        <PlayerOne 
+          myCards={gameState.myCards}
+          isMyTurn={gameState.currentPlayerIndex === (playerNumber - 1)}
+          onPlayCard={(index) => playCard(index)}
+          onDrawCard={drawCard}
+          onCallLastCard={callLastCard}
+        />
       </div>
       <div className="space-y-[46px]">
-        <GamePlayersTab />
-        <DrawPile pile={state.pile} onDraw={handleDraw} />
+        <GamePlayersTab 
+          playerNumber={playerNumber}
+          gameState={gameState}
+        />
+        <DrawPile 
+          deckSize={gameState.deckSize}
+          onDraw={drawCard}
+        />
       </div>
     </div>
   );

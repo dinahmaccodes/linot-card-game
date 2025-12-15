@@ -101,9 +101,32 @@ function page() {
           </div>
         </form>
 
+        <div className="space-y-3 mb-5 border-t border-t-[#D0EEF5] py-1">
+          <label
+            htmlFor="playerNumber"
+            className="text-[#01626F] font-lilitaone block py-2"
+          >
+            Select Player
+          </label>
+          <div className="py-2 px-[22px] flex gap-x-4">
+            <button
+              onClick={() => router.push("/game/1?player=1")}
+              className="flex-1 py-3 rounded-lg border border-[#0FB6C6] bg-[#0FB6C6] text-white font-satoshi font-bold"
+            >
+              Player 1
+            </button>
+            <button
+              onClick={() => router.push("/game/1?player=2")}
+              className="flex-1 py-3 rounded-lg border border-[#0FB6C6] bg-[#0FB6C6] text-white font-satoshi font-bold"
+            >
+              Player 2
+            </button>
+          </div>
+        </div>
+
         <button
           onClick={() => {
-            router.push("/game/1");
+            router.push("/game/1?player=1");
           }}
           className="flex items-center gap-x-2 mb-4 bg-[#0FB6C6] border-[0.2px] border-[#D0EEF5] w-full py-3 text-[#F9F9F9] justify-center rounded-[13px] text-[32px]/[100%]"
           style={{

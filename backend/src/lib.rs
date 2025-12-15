@@ -1,89 +1,17 @@
-use async_graphql::{Request, Response};
+use async_graphql::{Enum, Request, Response, SimpleObject};
 use linera_sdk::{
     abi::{ContractAbi, ServiceAbi},
     graphql::GraphQLMutationRoot,
-    linera_base_types::AccountOwner,
+    linera_base_types::{AccountOwner, ChainId},
 };
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 
-// ============ Constants ============
-
-/// Stream name for game events (multiplayer synchronization)
-pub const GAME_EVENTS_STREAM: &[u8] = b"linot_game_events";
-
-/// Turn timeout in microseconds (3 minutes)
-pub const TURN_TIMEOUT_MICROS: u64 = 3 * 60 * 1_000_000; // 180 seconds
-
-/// Turn warning in microseconds (2 minutes)
-pub const TURN_WARNING_MICROS: u64 = 2 * 60 * 1_000_000; // 120 seconds
-
-// ============ Error Types ============
-
-#[derive(Debug, Error)]
-pub enum LinotError {
-    #[error("Match already started")]
-    MatchAlreadyStarted,
-    
-    #[error("Match not started")]
-    MatchNotStarted,
-    
-    #[error("Match is full (max {0} players)")]
-    MatchFull(u8),
-    
-    #[error("Player already joined")]
-    PlayerAlreadyJoined,
-    
-    #[error("Only host can start match")]
-    OnlyHostCanStart,
-    
-    #[error("Need at least {0} players to start")]
-    NotEnoughPlayers(usize),
-    
-    #[error("Not your turn")]
-    NotYourTurn,
-    
-    #[error("Invalid card index: {0}")]
-    InvalidCardIndex(usize),
-    
-    #[error("Invalid card play: card doesn't match suit, value, or special requirements")]
-    InvalidCardPlay,
-    
-    #[error("Invalid player index: {0}")]
-    InvalidPlayerIndex(usize),
-    
-    #[error("Match not in progress")]
-    MatchNotInProgress,
-    
-    #[error("No card in discard pile")]
-    NoCardInDiscardPile,
-    
-    #[error("Betting not implemented yet")]
-    BettingNotImplemented,
-    
-    #[error("Caller authentication required")]
-    CallerRequired,
-    
-    #[error("Cannot play Hold On (1) without a second card")]
-    HoldOnRequiresSecondCard,
-    
-    #[error("Must play same shape after Hold On")]
-    HoldOnShapeMismatch,
-    
-    #[error("Cannot stack penalties - different card types")]
-    CannotStackPenalties,
-    
-    #[error("Turn timeout - player took too long")]
-    TurnTimeout,
-}
-
-// ============ ABI Definition ============
-
+/// The Linot application ABI
 pub struct LinotAbi;
 
 impl ContractAbi for LinotAbi {
     type Operation = Operation;
-    type Response = ();
+    type Response = LinotResponse;
 }
 
 impl ServiceAbi for LinotAbi {
@@ -91,216 +19,334 @@ impl ServiceAbi for LinotAbi {
     type QueryResponse = Response;
 }
 
-// ============ Data Types ============
-
-#[derive(Debug, Clone, Serialize, Deserialize, async_graphql::SimpleObject)]
-pub struct Card {
-    pub suit: CardSuit,
-    pub value: CardValue,
+/// Response type for operations
+#[derive(Debug, Deserialize, Serialize)]
+pub enum LinotResponse {
+    Ok,
+    Error(String),
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, async_graphql::Enum, PartialEq, Eq, Hash)]
-pub enum CardSuit {
-    Circle,
-    Cross,
-    Triangle,
-    Square,
-    Star,
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, async_graphql::Enum, PartialEq, Eq)]
-pub enum CardValue {
-    One,      // 1 - Hold On (special)
-    Two,      // 2 - Pick Two (special)
-    Three,    // 3
-    Four,     // 4
-    Five,     // 5 - Pick Three (special)
-    Six,      // 6
-    Seven,    // 7
-    Eight,    // 8 - Suspension (special)
-    Nine,     // 9
-    Ten,      // 10
-    Eleven,   // 11
-    Twelve,   // 12
-    Thirteen, // 13
-    Fourteen, // 14 - General Market (special)
-    Whot,     // 20 - Wild card (special)
-}
-
-impl CardValue {
-    /// Get the numeric value for display/logic
-    pub fn to_number(&self) -> u8 {
-        match self {
-            CardValue::One => 1,
-            CardValue::Two => 2,
-            CardValue::Three => 3,
-            CardValue::Four => 4,
-            CardValue::Five => 5,
-            CardValue::Six => 6,
-            CardValue::Seven => 7,
-            CardValue::Eight => 8,
-            CardValue::Nine => 9,
-            CardValue::Ten => 10,
-            CardValue::Eleven => 11,
-            CardValue::Twelve => 12,
-            CardValue::Thirteen => 13,
-            CardValue::Fourteen => 14,
-            CardValue::Whot => 20,
-        }
-    }
-
-    /// Check if this is a special action card
-    pub fn is_special(&self) -> bool {
-        matches!(self, 
-            CardValue::One | CardValue::Two | CardValue::Five | 
-            CardValue::Eight | CardValue::Fourteen | CardValue::Whot
-        )
-    }
-}
-
-// ============ Match Configuration ============
-
-#[derive(Debug, Clone, Serialize, Deserialize, async_graphql::SimpleObject)]
-pub struct MatchConfig {
-    pub max_players: u8,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub host: Option<AccountOwner>,
-    pub is_ranked: bool,
-    pub strict_mode: bool, // Enforce must draw if no valid move
-}
-
-impl Default for MatchConfig {
-    fn default() -> Self {
-        Self {
-            max_players: 2,
-            host: None,
-            is_ranked: false,
-            strict_mode: false,
-        }
-    }
-}
-
-// ============ Operations (GraphQL Mutations) ============
+// ============================================================================
+// OPERATIONS (GraphQL Mutations - User Actions)
+// ============================================================================
 
 #[derive(Debug, Deserialize, Serialize, GraphQLMutationRoot)]
 pub enum Operation {
-    /// Join this match instance (local chain)
+    /// Subscribe to Play chain events
+    Subscribe { play_chain_id: ChainId },
+    
+    /// Unsubscribe from Play chain
+    Unsubscribe { play_chain_id: ChainId },
+    
+    /// Create a new match (becomes Play chain)
+    CreateMatch { 
+        max_players: u8,
+        nickname: String,
+    },
+    
+    /// Join existing match (sends message to Play chain)
     JoinMatch {
+        play_chain_id: ChainId,
         nickname: String,
     },
-
-    /// Join a match on another chain (cross-chain)
-    JoinFromChain {
-        host_chain_id: String,
-        nickname: String,
-    },
-
-    /// Start the match (host only)
+    
+    /// Start match (host only)
     StartMatch,
-
-    /// Play a card from your hand
+    
+    /// Play a card
     PlayCard {
         card_index: usize,
-        chosen_suit: Option<CardSuit>, // Required for Whot card
+        chosen_suit: Option<CardSuit>,  // For Whot cards
     },
-
-    /// Draw a card from the deck (when stuck or choosing to draw)
+    
+    /// Draw a card
     DrawCard,
-
-    /// Call Last Card when you have exactly 1 card
+    
+    /// Call "Last Card"
     CallLastCard,
-
-    /// Challenge someone who forgot to call Last Card
+    
+    /// Challenge another player for not calling last card
     ChallengeLastCard {
         player_index: usize,
     },
-
-    /// Leave the match (forfeit)
-    LeaveMatch,
-
-    /// Check if current player has timed out (anyone can call)
+    
+    /// Check if current turn has timed out (called periodically)
     CheckTimeout,
-
-    // Wave 4-5: Betting (placeholder)
-    PlaceBet {
-        player_index: usize,
-        amount: u64,
-    },
+    
+    /// Leave match
+    LeaveMatch,
 }
 
-// ============ Messages (Cross-Chain Communication) ============
+// ============================================================================
+// USER STATUS (Local State Tracking)
+// ============================================================================
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq, Enum)]
+pub enum UserStatus {
+    Idle,
+    CreatingMatch,
+    InMatch,
+    WaitingForPlayers,
+}
+
+impl Default for UserStatus {
+    fn default() -> Self {
+        UserStatus::Idle
+    }
+}
+
+// ============================================================================
+// MESSAGES (Cross-Chain Communication)
+// ============================================================================
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum Message {
-    /// Join request from player on another chain
-    JoinRequest {
-        player: AccountOwner,
+    /// USER_CHAIN -> PLAY_CHAIN: Request to create a new match
+    RequestCreateMatch {
+        creator_owner: AccountOwner,
+        max_players: u8,
         nickname: String,
     },
-
-    /// Sync initial state to newly joined player
-    InitialStateSync {
-        config: MatchConfig,
-        players: Vec<String>, // player nicknames
-        status: u8, // MatchStatus as u8
+    
+    /// PLAY_CHAIN -> USER_CHAIN: Result of create match request
+    CreateMatchResult {
+        success: bool,
+        match_id: Option<usize>,
     },
-
-    /// Broadcast game event to all players
-    GameEvent {
-        event: GameEvent,
+    
+    /// USER_CHAIN -> PLAY_CHAIN: Player requesting to join from their USER_CHAIN
+    RequestJoin {
+        player_owner: AccountOwner,
+        player_chain: ChainId,
+        nickname: String,
+    },
+    
+    /// USER_CHAIN -> PLAY_CHAIN: Request to start the match
+    StartMatchAction {
+        player_owner: AccountOwner,
+    },
+    
+    /// USER_CHAIN -> PLAY_CHAIN: Player action: play card
+    PlayCardAction {
+        player_owner: AccountOwner,
+        card_index: usize,
+        chosen_suit: Option<CardSuit>,
+    },
+    
+    /// USER_CHAIN -> PLAY_CHAIN: Player action: draw card  
+    DrawCardAction {
+        player_owner: AccountOwner,
+    },
+    
+    /// USER_CHAIN -> PLAY_CHAIN: Player calls last card
+    CallLastCardAction {
+        player_owner: AccountOwner,
+    },
+    
+    /// USER_CHAIN -> PLAY_CHAIN: Player challenges another for not calling last card
+    ChallengeLastCardAction {
+        challenger_owner: AccountOwner,
+        challenged_player_index: usize,
     },
 }
 
-// ============ Events (For Stream Emission) ============
+// ============================================================================
+// EVENTS (State Synchronization)
+// ============================================================================
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum GameEvent {
-    /// Player joined the match
+    /// Match created
+    MatchCreated {
+        match_id: ChainId,
+        host: String,
+        max_players: u8,
+    },
+    
+    /// Player joined
     PlayerJoined {
         nickname: String,
         player_count: usize,
     },
-
-    /// Match has started
+    
+    /// Match started
     MatchStarted {
+        players: Vec<String>,
         first_player: String,
         top_card: Card,
     },
-
-    /// Card was played
+    
+    /// Card played
     CardPlayed {
-        player: String,
+        player_nickname: String,
         card: Card,
         next_player: String,
-        special_effect: Option<String>,
+        special_effect: Option<SpecialEffect>,
     },
-
-    /// Cards were drawn
+    
+    /// Cards drawn
     CardsDrawn {
-        player: String,
+        player_nickname: String,
         count: u8,
         next_player: String,
     },
-
+    
+    /// Last card called
+    LastCardCalled {
+        player_nickname: String,
+    },
+    
     /// Match ended
     MatchEnded {
         winner: String,
         winner_index: usize,
     },
-
-    /// Player left/forfeited
-    PlayerLeft {
-        nickname: String,
+    
+    /// Match won
+    MatchWon {
+        winner_nickname: String,
+        winner_index: usize,
     },
-
-    /// Turn timeout warning (2 minutes elapsed)
-    TurnTimeoutWarning {
-        player: String,
+    
+    /// Challenge penalty applied
+    ChallengePenalty {
+        challenged_player: String,
+        penalty_cards: u8,
     },
-
-    /// Turn timeout (3 minutes elapsed, auto-draw)
+    
+    /// Turn started with timer
+    TurnStarted {
+        player_nickname: String,
+        duration_micros: u64,
+    },
+    
+    /// Turn warning - time running out
+    TurnWarning {
+        player_nickname: String,
+        time_left_micros: u64,
+    },
+    
+    /// Turn timed out
     TurnTimeout {
-        player: String,
+        player_nickname: String,
         auto_drawn: bool,
     },
 }
+
+// ============================================================================
+// DATA STRUCTURES
+// ============================================================================
+
+/// Card definition
+#[derive(Clone, Debug, Serialize, Deserialize, SimpleObject, PartialEq)]
+pub struct Card {
+    pub suit: CardSuit,
+    pub value: u8,
+}
+
+/// Card suits
+#[derive(Clone, Debug, Serialize, Deserialize, Enum, Copy, PartialEq, Eq)]
+pub enum CardSuit {
+    Circle,
+    Triangle,
+    Cross,
+    Square,
+    Star,
+    Whot,  // Wild card
+}
+
+/// Special card effects
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum SpecialEffect {
+    PickTwo,
+    PickThree,
+    HoldOn,
+    GeneralMarket,
+    WhotPlayed { chosen_suit: CardSuit },
+}
+
+/// Player in match
+#[derive(Clone, Debug, Serialize, Deserialize, SimpleObject)]
+pub struct Player {
+    pub chain_id: ChainId,
+    pub owner: AccountOwner,
+    pub nickname: String,
+    #[graphql(skip)]
+    pub hand: Vec<Card>,
+    pub hand_size: usize,  // Public info
+    pub called_last_card: bool,
+}
+
+impl Player {
+    pub fn new(chain_id: ChainId, owner: AccountOwner, nickname: String) -> Self {
+        Self {
+            chain_id,
+            owner,
+            nickname,
+            hand: Vec::new(),
+            hand_size: 0,
+            called_last_card: false,
+        }
+    }
+    
+    pub fn update_hand_size(&mut self) {
+        self.hand_size = self.hand.len();
+    }
+}
+
+/// Match state
+#[derive(Clone, Debug, Serialize, Deserialize, SimpleObject)]
+pub struct MatchData {
+    pub players: Vec<Option<Player>>,
+    #[graphql(skip)]
+    pub deck: Vec<Card>,
+    pub discard_pile: Vec<Card>,
+    pub current_player_index: usize,
+    pub status: MatchStatus,
+    pub winner_index: Option<usize>,
+    pub max_players: u8,
+    pub deck_size: usize,  // Public info
+    pub pending_draw_stack: u8,        // Total cards to draw (for stacking)
+    #[graphql(skip)]
+    pub pending_draw_type: Option<u8>, // Value of stacking card (2 or 5)
+    pub turn_start_time: Option<u64>,   // When current turn started (micros)
+    pub turn_duration: u64,             // Turn duration in micros
+}
+
+impl Default for MatchData {
+    fn default() -> Self {
+        Self {
+            players: Vec::new(),
+            deck: Vec::new(),
+            discard_pile: Vec::new(),
+            current_player_index: 0,
+            status: MatchStatus::Waiting,
+            winner_index: None,
+            max_players: 2,
+            deck_size: 0,
+            pending_draw_stack: 0,
+            pending_draw_type: None,
+            turn_start_time: None,
+            turn_duration: crate::TURN_TIMEOUT_MICROS,
+        }
+    }
+}
+
+/// Match status
+#[derive(Clone, Debug, Serialize, Deserialize, Enum, Copy, PartialEq, Eq)]
+pub enum MatchStatus {
+    Waiting,     // Waiting for players
+    InProgress,  // Game ongoing
+    Finished,    // Game complete
+}
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+pub const GAME_STREAM_NAME: &[u8] = b"linot_game_events";
+pub const INITIAL_HAND_SIZE: u8 = 6;
+pub const MAX_PLAYERS: u8 = 6;
+pub const MIN_PLAYERS: u8 = 2;
+pub const TURN_TIMEOUT_MICROS: u64 = 180_000_000;  // 3 minutes
+pub const TURN_WARNING_MICROS: u64 = 120_000_000;  // 2 minutes

@@ -1,0 +1,17 @@
+services:
+  whot:
+    build: .
+    ports:
+      - "3000:3000"   # Frontend
+      - "8080:8080"   # Faucet
+      - "8081:8081"   # Player 1 GraphQL
+      - "8082:8082"   # Player 2 GraphQL
+    volumes:
+      - .:/build
+    hostname: whot
+    networks:
+      - whot-network
+
+networks:
+  whot-network:
+    driver: bridge

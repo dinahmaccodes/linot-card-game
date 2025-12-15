@@ -1,0 +1,12 @@
+{
+  "appId": "",
+  "playChain": "",  
+  "userChain1": "",
+  "userChain2": "",
+  "timestamp": "2025-12-15T07:54:11+01:00",
+  "urls": {
+    "player1": "http://localhost:8081/chains//applications/",
+    "player2": "http://localhost:8082/chains//applications/",
+    "playChain": "http://localhost:8081/chains//applications/"
+  }
+}
