@@ -1,4 +1,4 @@
-FROM rust:1.86.0-slim
+FROM rust:1.86-slim
 
 SHELL ["bash", "-c"]
 
@@ -7,11 +7,13 @@ RUN apt-get update && apt-get install -y \
     protobuf-compiler \
     clang \
     make \
-    jq
+    jq \
+    curl
 
 RUN cargo install --locked linera-service@0.15.6 linera-storage-service@0.15.6
-RUN apt-get install -y curl
 
+# Add WASM target for building Linera contracts
+RUN rustup target add wasm32-unknown-unknown
 
 # Install Node.js for frontend
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
