@@ -140,11 +140,15 @@ impl LinotContract {
         let player_count = match_data.players.iter()
             .filter(|p| p.is_some()).count();
         
+        log::info!("PLAY_CHAIN: handle_start_match called. Player count: {}", player_count);
+
         if player_count < MIN_PLAYERS as usize {
-            return LinotResponse::Error(format!(
-                "Not enough players. Need at least {}",
-                MIN_PLAYERS
-            ));
+            let msg = format!(
+                "Not enough players. Need at least {}. Current: {}",
+                MIN_PLAYERS, player_count
+            );
+            log::error!("PLAY_CHAIN: StartMatch failed - {}", msg);
+            return LinotResponse::Error(msg);
         }
 
         // Deal cards inline to avoid borrow conflict

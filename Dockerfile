@@ -7,9 +7,11 @@ RUN apt-get update && apt-get install -y \
     protobuf-compiler \
     clang \
     make \
-    curl
+    jq
 
 RUN cargo install --locked linera-service@0.15.6 linera-storage-service@0.15.6
+RUN apt-get install -y curl
+
 
 # Install Node.js for frontend
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
