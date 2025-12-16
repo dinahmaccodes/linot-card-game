@@ -5,7 +5,8 @@ services:
       dockerfile: Dockerfile
     container_name: linot-card-game-linot-1
     ports:
-      - "5173:5173"     # Frontend
+      - "5173:5173"     # Frontend Player 1
+      - "5174:5174"     # Frontend Player 2
       - "8080:8080"     # Faucet
       - "8081:8081"     # Player 1 GraphQL
       - "8082:8082"     # Player 2 GraphQL

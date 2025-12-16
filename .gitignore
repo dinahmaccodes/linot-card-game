@@ -6,14 +6,14 @@
 /old-docker-guide/
 /old-one
 ### Linera Protocol Source (not needed for demo)
-/linera-protocol/
+# /linera-protocol/
 /inspo-zone
 /inspo-multi
 /docs/linera_doc_details
 /template/
 docs/regression_tests 
 /docs/previous-waves
-/docs/wave_4_revamp
+# /docs/wave_4_revamp
 
 # build output
 /frontend/dist/

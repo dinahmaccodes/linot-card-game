@@ -109,3 +109,102 @@ export async function graphqlMutate<T = any>(
 ): Promise<T> {
   return graphqlQuery<T>(mutation, variables);
 }
+
+// Query PLAY_CHAIN (for match state - authoritative source)
+export async function queryPlayChain<T = any>(
+  query: string,
+  variables?: Record<string, any>
+): Promise<T> {
+  const config = await loadConfig();
+  
+  // Use PLAY_CHAIN endpoint for queries (where match state lives)
+  const endpoint = config.endpoints[0]; // Can use either port since we're querying PLAY_CHAIN
+  const url = `${endpoint.graphqlUrl}/chains/${config.playChain}/applications/${config.applicationId}`;
+  
+  console.log(`[GraphQL] Querying PLAY_CHAIN: ${url}`);
+  console.log(`[GraphQL] PLAY_CHAIN ID: ${config.playChain}`);
+  
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ query, variables })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const result: GraphQLResponse<T> = await response.json();
+    
+    if (result.errors && result.errors.length > 0) {
+      const errorMessages = result.errors.map(e => e.message).join(', ');
+      throw new Error(`GraphQL errors: ${errorMessages}`);
+    }
+    
+    if (!result.data) {
+      throw new Error('No data returned from GraphQL query');
+    }
+    
+    return result.data;
+  } catch (error) {
+    console.error('[GraphQL] PLAY_CHAIN query failed:', error);
+    throw error;
+  }
+}
+
+// Mutate USER_CHAIN (for player actions)
+export async function mutateUserChain<T = any>(
+  mutation: string,
+  variables?: Record<string, any>,
+  playerNumber?: number
+): Promise<T> {
+  const config = await loadConfig();
+  const player = playerNumber || getPlayerNumber();
+  
+  // Find endpoint for this player's USER_CHAIN
+  const endpoint = config.endpoints.find(e => e.playerNumber === player);
+  if (!endpoint) {
+    throw new Error(`No endpoint configured for player ${player}`);
+  }
+  
+  // Use player's USER_CHAIN endpoint for mutations
+  const url = `${endpoint.graphqlUrl}/chains/${endpoint.chainId}/applications/${config.applicationId}`;
+  
+  console.log(`[GraphQL] Mutating USER_CHAIN (Player ${player}): ${url}`);
+  console.log(`[GraphQL] USER_CHAIN ID: ${endpoint.chainId}`);
+  
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ query: mutation, variables })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const result: GraphQLResponse<T> = await response.json();
+    
+    if (result.errors && result.errors.length > 0) {
+      const errorMessages = result.errors.map(e => e.message).join(', ');
+      throw new Error(`GraphQL errors: ${errorMessages}`);
+    }
+    
+    if (!result.data) {
+      throw new Error('No data returned from GraphQL mutation');
+    }
+    
+    return result.data;
+  } catch (error) {
+    console.error('[GraphQL] USER_CHAIN mutation failed:', error);
+    throw error;
+  }
+}

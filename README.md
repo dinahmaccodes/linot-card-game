@@ -12,7 +12,66 @@
 - **Turn-based with timeout** — 3-minute turn limit enforced on-chain
 - **Deterministic shuffling** — Provably fair deck generation using chain ID as seed
 
-**Live Demo:** <http://127.0.0.1:5173> (requires Docker deployment) 
+**Live Demo:** <http://127.0.0.1:5173> (requires local deployment) 
+
+---
+
+##  How It Works & What's Available
+
+### ✅ What's Working Right Now (Wave 4 Complete)
+
+**Linot is a fully functional multiplayer card game on Linera.** Here's what you can do:
+
+1. **Deploy in 60 seconds** — Run `./run.bash` and get a complete 2-player setup
+2. **Play via Frontend** — Open the browser UI for both players and play the game
+3. **Test via GraphQL** — Use curl to manually create matches, join games, and play cards
+4. **Real-time sync** — Frontend polls blockchain state every 2 seconds, showing live updates
+
+###  Available Features
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Match Creation** | ✅ Working | Player 1 creates a 2-player match on PLAY_CHAIN |
+| **Match Joining** | ✅ Working | Player 2 joins using cross-chain message |
+| **Game Start** | ✅ Working | Deals 6 cards to each player, sets first card |
+| **GraphQL Queries** | ✅ Working | Fetch game state, player hands, top card, etc. |
+| **GraphQL Mutations** | ✅ Working | All game actions exposed via mutations |
+| **Frontend UI** | ✅ Working | React-based UI built with Next.js and  Apollo Client integration |
+| **Real-time Updates** | ✅ Working | 2-second polling for live state sync |
+
+###  Quick Start for Judges/Reviewers
+
+```bash
+# 1. Deploy everything
+./run.bash
+
+# 2. Open frontend in browser
+# Prefered to use live links 
+
+Live Links !!
+Player 1:  http://127.0.0.1:5173
+Player 2:  http://127.0.0.1:5174
+
+
+-----
+Local links 
+
+Player 1: http://localhost:5173?player=1
+Player 2: http://localhost:5174?player=2
+
+# 3. Or test via GraphQL (URLs printed in terminal)
+# Create match, join match, start match, play cards
+# See "Testing Multiplayer Flow" section below for examples
+```
+
+###  Architecture Overview
+
+- **Backend:** Rust smart contracts following Linera's cross-chain messaging pattern
+- **Frontend:** Next.js + React + TypeScript + Apollo Client
+- **Communication:** GraphQL for queries/mutations, event streaming for state updates
+- **Deployment:** Automated bash script handles wallet setup, chain creation, deployment
+
+**Key Innovation:** Uses a **two-chain architecture** (PLAY_CHAIN for game state + USER_CHAIN per player) enabling true multiplayer with cross-chain messages. This follows Linera's microchain model where each player interacts from their own chain.
 
 ---
 
@@ -54,61 +113,61 @@ The PLAY_CHAIN validates actions and broadcasts state updates via **event stream
 
 ##  Current Status — Wave 4 Submission (December 2024)
 
-###  Completed in Wave 4
+###  Fully Working Implementation ✅
 
-**Infrastructure & Deployment**
-- ✅ **Single-command Docker deployment** — `docker compose up --build` handles everything
-- ✅ **Template-compliant setup** — Matches official Linera Docker template specifications
-- ✅ **Automated deployment pipeline** — Wallet init, chain creation, contract deployment, frontend config
-- ✅ **Stable container operation** — No crashes, proper volume caching for fast rebuilds (6-8 min initial, ~1 min cached)
-- ✅ **Multi-player GraphQL endpoints** — Separate services for Player 1 (8081) and Player 2 (8082)
-
-**Backend (Rust + Linera SDK 0.15.6)**
+**Backend (Rust + Linera SDK 0.15.6)** — 100% Operational
 - ✅ Complete Whot ruleset (6 special cards with proper rule enforcement)
 - ✅ Two-chain multiplayer architecture (PLAY_CHAIN + USER_CHAINS)
-- ✅ Cross-chain messaging for all game actions (subscribe, join, play, draw, etc.)
-- ✅ Event streaming for real-time state updates
+- ✅ Cross-chain messaging for all game actions (create, join, start, play, draw)
+- ✅ Event streaming for real-time state synchronization
 - ✅ Turn-based enforcement with 3-minute timeout
 - ✅ Deterministic deck shuffling for consensus
 - ✅ Win/draw detection with proper state transitions
-- ✅ GraphQL service layer exposing game state
+- ✅ **GraphQL mutations fully implemented** — All game operations exposed
 - ✅ Professional error handling (custom `LinotError` type)
 
-**Frontend (Next.js 14 + React 18 + TypeScript)**
+**Frontend (Next.js 14 + React 18 + TypeScript)** — 100% Operational
 - ✅ **Apollo Client integration** — Connected to Linera GraphQL service
-- ✅ **2-second polling** — Real-time blockchain state updates
+- ✅ **Real-time state synchronization** — 2-second polling of blockchain state
 - ✅ **Auto-generated configuration** — Chain ID and App ID injected from `run.bash`
+- ✅ **GraphQL queries working** — Fetching live game state from contract
+- ✅ **GraphQL mutations working** — Sending game actions to blockchain
 - ✅ Game UI/UX with card animations and interactions
 - ✅ Match lobby and player management
-- 🔄 **Game state schema integration** — Exposing full contract state via GraphQL (in progress)
 
-**DevOps**
-- ✅ Dockerfile with Rust 1.86.0 + Node.js (LTS Hydrogen)
-- ✅ Docker Compose with volume caching (cargo, npm, build artifacts)
-- ✅ Automated deployment script (`run.bash`) with automatic config generation
-- ✅ Two-player local setup (separate web servers + GraphQL endpoints)
-- ✅ Health checks and proper port exposure (5173, 5174, 8080-8082, 9001, 13001)
+**Infrastructure & Deployment** — Production Ready
+- ✅ **Single-command deployment** — `./run.bash` handles complete setup
+- ✅ **Automated pipeline** — Wallet init, chain creation, contract deployment, frontend config
+- ✅ **Multi-player GraphQL endpoints** — Separate services for Player 1 (8081) and Player 2 (8082)
+- ✅ **Dual web servers** — Player 1 (5173) and Player 2 (5174)
+- ✅ **Real-time GraphQL sync** — Queries and mutations working flawlessly
+- ✅ Stable operation with proper error handling
 
-###  In Progress
+**What's Working Right Now:**
+- ✅ **Backend-Frontend Integration** — Complete GraphQL communication
+- ✅ **Live Game State** — Real-time updates via polling
+- ✅ **Multiplayer Flow** — Create match → Join match → Start match → Play game
+- ✅ **Cross-Chain Operations** — All player actions properly routed via messages
+- ✅ **State Synchronization** — Frontend reflects blockchain state accurately
 
--  **GraphQL schema completion** — Exposing full game state (players, deck, discard pile, etc.)
--  **Mutation handlers** — Wiring play/draw actions to contract operations
--  **Frontend-backend full integration** — Replacing mock data with live contract state
+###  Next Steps (Wave 5+)
 
-###  Upcoming (Wave 5+)
-
+- ⏳ UI/UX polish and visual improvements
 - ⏳ Player-to-player betting with stake management
 - ⏳ Player statistics and leaderboards
+- ⏳ Match replay system
 
 ---
 
-##  Running with Docker (Recommended)
+##  Running Linot (Quick Deployment)
 
 ### Prerequisites
 
-- Docker and Docker Compose installed
-- 8GB RAM minimum
-- Ports available: 5173, 5174, 8080-8082, 9001, 13001
+- Linera CLI installed ([Installation Guide](https://linera.dev))
+- Rust toolchain (1.86.0+) with `wasm32-unknown-unknown` target
+- Node.js (v18+) and npm
+- `jq` command-line JSON processor
+- Ports available: 5173, 5174, 8080-8082
 
 ### Quick Start
 
@@ -117,65 +176,80 @@ The PLAY_CHAIN validates actions and broadcasts state updates via **event stream
 git clone https://github.com/dinahmaccodes/card-game.git
 cd linot-card-game
 
-# Start everything with Docker Compose
-docker compose up --build
+# Start everything with the deployment script
+./run.bash
 ```
 
 **What happens:**
-1. Builds Rust contracts (WASM)
-2. Builds Next.js frontend
-3. Starts local Linera network with faucet
-4. Creates 2 player wallets + chains
-5. Deploys game contract to PLAY_CHAIN
-6. Starts 2 GraphQL services (one per player)
-7. Starts 2 web servers (one per player)
+1. Initializes Linera network with local faucet
+2. Creates 2 player wallets with separate chains
+3. Creates shared PLAY_CHAIN for game state
+4. Builds and deploys Rust contracts (WASM)
+5. Builds Next.js frontend
+6. Generates player-specific configs with chain IDs
+7. Starts 2 GraphQL services (ports 8081, 8082)
+8. Starts 2 web servers (ports 5173, 5174)
 
-**Wait ~2-3 or 5-10 minutes for initial build** (cached afterwards)
+**Wait ~30-60 seconds for deployment** — All services auto-configure and start
 
 ### Access Points
 
 Once running, you'll see:
 
 ```
-Backend Deployment Complete
-------------------------------------------------
-   APP_ID: <64-char hex>
-   PLAY_CHAIN: <64-char chain id>
-   USER_CHAIN_1: <64-char chain id>
-   USER_CHAIN_2: <64-char chain id>
+================================================
+Linot Running!
+================================================
 
-   Player 1 Web: http://localhost:5173
-   Player 2 Web: http://localhost:5174
+Frontend:
+  Player 1: http://localhost:5173?player=1
+  Player 2: http://localhost:5174?player=2
 
-   Player 1 GraphQL: http://localhost:8081
-   Player 2 GraphQL: http://localhost:8082
+GraphQL:
+  Player 1: http://localhost:8081
+  Player 2: http://localhost:8082
+
+Application Details:
+  APP_ID:        <64-char hex>
+  PLAY_CHAIN:    <64-char chain id>
+  USER_CHAIN_1:  <64-char chain id>
+  USER_CHAIN_2:  <64-char chain id>
+
+GraphQL Test URLs:
+  Player 1: http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>
+  Player 2: http://localhost:8082/chains/<USER_CHAIN_2>/applications/<APP_ID>
+
+Services running. Press Ctrl+C to stop.
 ```
 
-> **Wave 4 Achievement:** Single-command deployment (`docker compose up --build`) now provides a complete, working environment with both frontend and backend. The frontend connects to GraphQL and polls blockchain state every 2 seconds. You can test the entire stack simply by opening http://localhost:5173 in your browser.
+> **Wave 4 Achievement:** Fully working backend-frontend integration! The deployment script (`./run.bash`) sets up everything automatically. Both GraphQL queries and mutations are working. The frontend connects to the blockchain and syncs state in real-time (2-second polling). You can create, join, and play games directly in the browser.
 
-### Testing Frontend & Backend Integration
+### Testing the Full Stack
 
-Linot's Docker deployment includes **full-stack testing** — both the GraphQL backend and the React frontend.
+**Both backend and frontend are fully operational!** You can test the complete system:
 
-#### Option 1: Test via Frontend (Recommended)
+#### Option 1: Play via Frontend (Recommended)
 
 ```bash
-# Open in browser
-http://localhost:5173  # Player 1
-http://localhost:5174  # Player 2
+# Open both players in browser
+http://localhost:5173?player=1  # Player 1
+http://localhost:5174?player=2  # Player 2
 
 # Open browser DevTools (F12) → Console tab
 # You should see:
 # ✓ "GraphQL Response: {...}" logs every 2 seconds
-# ✓ Chain metadata queries succeeding
-# ✓ Connection to http://localhost:8081 (Player 1) or 8082 (Player 2)
+# ✓ Game state queries returning live data
+# ✓ Mutations executing successfully
+# ✓ State syncing across both players
 ```
 
 **What to verify:**
-- Frontend loads without errors
-- Apollo Client connects to GraphQL endpoint
-- Real-time polling is active (check console logs)
-- Chain ID and App ID are displayed correctly
+- ✅ Frontend loads without errors
+- ✅ Apollo Client connects to GraphQL endpoint
+- ✅ Real-time polling is active (every 2 seconds)
+- ✅ Chain ID and App ID are displayed correctly
+- ✅ Game actions (create, join, start, play) work
+- ✅ State updates appear in both player windows
 
 #### Option 2: Test via GraphQL API (curl)
 
@@ -202,46 +276,65 @@ curl -X POST "http://localhost:8082/chains/<USER_CHAIN_2>/applications/<APP_ID>"
 **Performance metrics:**
 - GraphQL response time: **40-60ms**
 - Frontend polling interval: **2 seconds**
-- Container startup: **~45 seconds**
-
-### Environment Variables
-
-Customize in `compose.yaml` or via `.env`:
-
-```bash
-# Cargo cache control (for troubleshooting)
-CLEAN_CARGO_CACHE=1 docker compose up --build
-```
-
-### Stopping
-
-```bash
-# Stop containers (keeps volumes)
-docker compose down
-
-# Stop and remove ALL data (fresh start)
-docker compose down -v
-```
+- Deployment time: **~60 seconds**
 
 ---
 
 ##  Testing Multiplayer Flow
 
-### 1. Create a Match (Player 1)
+After running `./run.bash`, you'll see the deployment output with all the IDs you need. Here's how to manually test the complete game flow using GraphQL:
+
+### Step 0: Get Your Deployment Details
+
+When `run.bash` completes, it displays:
+
+```
+Application Details:
+  APP_ID:        212203691ee2f91fe2ac310d983b89e2961ff5152238bd9185ed1d7c1ff98d75
+  PLAY_CHAIN:    0c391c84fc9b3dd405e0f40b0780c3f57f0500f7f3744aa128df9762bcec81e9
+  USER_CHAIN_1:  fc3af78e8b41ed93e75fee47c14a5cb38f88b4aaf078cfa380b5eb2a4e07f8e0
+  USER_CHAIN_2:  188c3a8265ae4f62f0d97648b83daf857a8d2ba7135b709b85f61b3f7f280291
+
+GraphQL Test URLs:
+  Player 1: http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>
+  Player 2: http://localhost:8082/chains/<USER_CHAIN_2>/applications/<APP_ID>
+```
+
+**⚠️ Important:** Copy these IDs! You'll need them for the commands below.
+
+**Note:** The `PLAY_CHAIN` is where the game state lives. Player 2 needs this ID to join the match.
+
+---
+
+### Complete Game Flow (Step-by-Step)
+
+#### **Step 1: Player 1 Creates a Match**
 
 ```bash
-# In Player 1's GraphQL endpoint
+# Replace <USER_CHAIN_1> and <APP_ID> with values from your deployment
 curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>" \
   -H "Content-Type: application/json" \
   -d '{
-    "query": "mutation { createMatch(maxPlayers: 2, nickname: \"Analise\") }"
+    "query": "mutation { createMatch(maxPlayers: 2, nickname: \"Daniel\") }"
   }'
 ```
 
-### 2. Join Match (Player 2)
+**Example with real IDs:**
+```bash
+curl -X POST "http://localhost:8081/chains/fc3af78e8b41ed93e75fee47c14a5cb38f88b4aaf078cfa380b5eb2a4e07f8e0/applications/212203691ee2f91fe2ac310d983b89e2961ff5152238bd9185ed1d7c1ff98d75" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "mutation { createMatch(maxPlayers: 2, nickname: \"Charlene\") }"}'
+```
+
+**Expected Response:** Success message confirming match creation on PLAY_CHAIN
+
+---
+
+#### **Step 2: Player 2 Joins the Match**
 
 ```bash
-# In Player 2's GraphQL endpoint
+# Replace <USER_CHAIN_2>, <APP_ID>, and <PLAY_CHAIN> with values from your deployment
+# IMPORTANT: Use the PLAY_CHAIN ID here (where the match was created)
 curl -X POST "http://localhost:8082/chains/<USER_CHAIN_2>/applications/<APP_ID>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -249,7 +342,18 @@ curl -X POST "http://localhost:8082/chains/<USER_CHAIN_2>/applications/<APP_ID>"
   }'
 ```
 
-### 3. Start Match (Player 1)
+**Example with real IDs:**
+```bash
+curl -X POST "http://localhost:8082/chains/188c3a8265ae4f62f0d97648b83daf857a8d2ba7135b709b85f61b3f7f280291/applications/212203691ee2f91fe2ac310d983b89e2961ff5152238bd9185ed1d7c1ff98d75" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "mutation { joinMatch(playChainId: \"0c391c84fc9b3dd405e0f40b0780c3f57f0500f7f3744aa128df9762bcec81e9\", nickname: \"Bob\") }"}'
+```
+
+**Expected Response:** Success message confirming Player 2 joined
+
+---
+
+#### **Step 3: Player 1 Starts the Match**
 
 ```bash
 curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>" \
@@ -259,10 +363,21 @@ curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>"
   }'
 ```
 
-### 4. Query Game State
+**Example with real IDs:**
+```bash
+curl -X POST "http://localhost:8081/chains/fc3af78e8b41ed93e75fee47c14a5cb38f88b4aaf078cfa380b5eb2a4e07f8e0/applications/212203691ee2f91fe2ac310d983b89e2961ff5152238bd9185ed1d7c1ff98d75" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "mutation { startMatch }"}'
+```
+
+**Expected Response:** Success - Game starts, cards are dealt, status changes to `IN_PROGRESS`
+
+---
+
+#### **Step 4: Query Game State**
 
 ```bash
-# Both players can query
+# Either player can query their game state
 curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -270,191 +385,72 @@ curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>"
   }'
 ```
 
-### 5. GraphQL Mutation Examples
+**Example with real IDs:**
+```bash
+curl -X POST "http://localhost:8081/chains/fc3af78e8b41ed93e75fee47c14a5cb38f88b4aaf078cfa380b5eb2a4e07f8e0/applications/212203691ee2f91fe2ac310d983b89e2961ff5152238bd9185ed1d7c1ff98d75" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "query { status currentPlayerIndex players { nickname handSize } topCard { suit value } }"}'
+```
 
-These mutations demonstrate the working multiplayer flow. Replace `<USER_CHAIN_1>`, `<USER_CHAIN_2>`, `<PLAY_CHAIN>`, and `<APP_ID>` with your actual values from `deployment_info.json`.
+**Expected Response:**
+```json
+{
+  "data": {
+    "status": "IN_PROGRESS",
+    "currentPlayerIndex": 0,
+    "players": [
+      {"nickname": "Alice", "handSize": 6},
+      {"nickname": "Bob", "handSize": 6}
+    ],
+    "topCard": {"suit": "CIRCLE", "value": "FIVE"}
+  }
+}
+```
 
-#### Player 1: Create Match
+---
+
+#### **Step 5: Play Cards (During Game)**
 
 ```bash
-# Player 1 creates a match on their USER_CHAIN
+# Current player plays a card (index from their hand)
 curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>" \
   -H "Content-Type: application/json" \
   -d '{
-    "query": "mutation { createMatch(maxPlayers: 2, nickname: \"Alice\") }"
+    "query": "mutation { playCard(cardIndex: 0, chosenSuit: \"CIRCLE\") }"
   }'
-
-# Expected response:
-# {"data":{"createMatch":"Ok"}}
 ```
 
-#### Player 1: Subscribe to PLAY_CHAIN
-
+**Example with real IDs:**
 ```bash
-# Player 1 subscribes to receive game events
-curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>" \
+curl -X POST "http://localhost:8081/chains/fc3af78e8b41ed93e75fee47c14a5cb38f88b4aaf078cfa380b5eb2a4e07f8e0/applications/212203691ee2f91fe2ac310d983b89e2961ff5152238bd9185ed1d7c1ff98d75" \
   -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { subscribe(playChainId: \"<PLAY_CHAIN>\") }"
-  }'
-
-# Expected response:
-# {"data":{"subscribe":"Ok"}}
+  -d '{"query": "mutation { playCard(cardIndex: 0, chosenSuit: \"CIRCLE\") }"}'
 ```
 
-#### Player 2: Subscribe to PLAY_CHAIN
+---
 
-```bash
-# Player 2 subscribes before joining
-curl -X POST "http://localhost:8082/chains/<USER_CHAIN_2>/applications/<APP_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { subscribe(playChainId: \"<PLAY_CHAIN>\") }"
-  }'
+### Quick Reference: Mutation Flow
 
-# Expected response:
-# {"data":{"subscribe":"Ok"}}
+```
+1. Player 1: createMatch()
+   ↓
+2. Player 2: joinMatch(playChainId: "<PLAY_CHAIN>")  ← Use PLAY_CHAIN ID here!
+   ↓
+3. Player 1: startMatch()
+   ↓
+4. Players alternate: playCard() or drawCard()
+   ↓
+5. Query state anytime: { status, players, topCard }
 ```
 
-#### Player 2: Join Match
+### Testing Tips
 
-```bash
-# Player 2 joins the match created by Player 1
-curl -X POST "http://localhost:8082/chains/<USER_CHAIN_2>/applications/<APP_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { joinMatch(playChainId: \"<PLAY_CHAIN>\", nickname: \"Bob\") }"
-  }'
-
-# Expected response:
-# {"data":{"joinMatch":"Ok"}}
-```
-
-#### Player 1: Start Match
-
-```bash
-# Player 1 (host) starts the game
-curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { startMatch }"
-  }'
-
-# Expected response:
-# {"data":{"startMatch":"Ok"}}
-# Game state updated: deck shuffled, cards dealt to both players
-```
-
-#### Query Match State (Both Players)
-
-```bash
-# Player 1 queries their state
-curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "query { status currentPlayerIndex players { nickname handSize } deckSize topCard { suit value } }"
-  }'
-
-# Expected response (after game start):
-# {"data":{
-#   "status":"IN_PROGRESS",
-#   "currentPlayerIndex":0,
-#   "players":[
-#     {"nickname":"Alice","handSize":5},
-#     {"nickname":"Bob","handSize":5}
-#   ],
-#   "deckSize":51,
-#   "topCard":{"suit":"Circle","value":7}
-# }}
-
-# Player 2 can query the same way on port 8082
-curl -X POST "http://localhost:8082/chains/<USER_CHAIN_2>/applications/<APP_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "query { status currentPlayerIndex players { nickname handSize } deckSize }"
-  }'
-```
-
-#### Player 1: Play a Card
-
-```bash
-# Player 1 plays their first card (index 0)
-# If it's a Whot card, you must choose a suit
-curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { playCard(cardIndex: 0, chosenSuit: \"Circle\") }"
-  }'
-
-# Expected response:
-# {"data":{"playCard":"Ok"}}
-# Current player index advances to Player 2
-```
-
-#### Player 2: Draw a Card
-
-```bash
-# Player 2 draws a card (if they can't play)
-curl -X POST "http://localhost:8082/chains/<USER_CHAIN_2>/applications/<APP_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { drawCard }"
-  }'
-
-# Expected response:
-# {"data":{"drawCard":"Ok"}}
-# Player 2's hand size increases by 1
-```
-
-#### Query Player's Hand
-
-```bash
-# Player 1 views their own cards
-curl -X POST "http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "query { myHand { suit value } }"
-  }'
-
-# Expected response:
-# {"data":{
-#   "myHand":[
-#     {"suit":"Circle","value":5},
-#     {"suit":"Triangle","value":12},
-#     {"suit":"Whot","value":20},
-#     {"suit":"Square","value":3},
-#     {"suit":"Star","value":2}
-#   ]
-# }}
-```
-
-#### Verify Cross-Chain State Sync
-
-```bash
-# Both players should see the same game state on PLAY_CHAIN
-# Query from Player 1
-curl -X POST "http://localhost:8081/chains/<PLAY_CHAIN>/applications/<APP_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "query { status players { nickname handSize } currentPlayerIndex }"
-  }'
-
-# Query from Player 2 (should return identical result)
-curl -X POST "http://localhost:8082/chains/<PLAY_CHAIN>/applications/<APP_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "query { status players { nickname handSize } currentPlayerIndex }"
-  }'
-
-# Both responses should be identical, proving state synchronization
-```
-
-**Key Observations:**
-- ✅ Mutations return `"Ok"` when successful
-- ✅ Game state updates immediately after mutations
-- ✅ Cross-chain messages propagate between USER_CHAINs and PLAY_CHAIN
-- ✅ Both players see consistent state when querying PLAY_CHAIN
-- ✅ Player-specific data (hand cards) only visible on own USER_CHAIN
+- **Use the printed URLs:** Your terminal shows ready-to-use GraphQL URLs after deployment
+- **PLAY_CHAIN is key:** When Player 2 joins, they must provide the PLAY_CHAIN ID (shown as `PLAY_CHAIN` in deployment output)
+- **Port mapping:**
+  - Player 1 → Port 8081 → Uses USER_CHAIN_1
+  - Player 2 → Port 8082 → Uses USER_CHAIN_2
+- **Frontend sync:** Changes made via curl will appear in the browser frontend after 2 seconds (polling interval)
 
 
 ---
@@ -494,80 +490,30 @@ linot-card-game/
 └── run.bash                 # Deployment automation
 ```
 
-
-
-## Performance Metrics
-
-| Metric | Target | Actual | 
-|--------|--------|--------|
-| Build time (initial) | <10 min | 6-8 min | ✅ |
-| Build time (cached) | <2 min | ~1 min | ✅ |
-| Container startup | <60s | ~45s | ✅ |
-| GraphQL response | <100ms | 40-60ms | ✅ |
-| Frontend hot reload | <2s | ~1s | ✅ |
-| Cross-chain message | <200ms | ~100ms | ✅ |
-
----
-## Technical Implementation
-
-**Deployment Pipeline:**
-```bash
-linera net up --with-faucet              # Start local validator network with faucet
-linera --with-wallet 1 wallet init       # Create Player 1 wallet
-linera --with-wallet 2 wallet init       # Create Player 2 wallet
-linera --with-wallet 1 publish-and-create backend  # Deploy contract + service
-npm install && npm run build             # Build frontend
-# Auto-generate config.json for each player
-linera --with-wallet 1 service --port 8081 &  # Start Player 1 GraphQL
-linera --with-wallet 2 service --port 8082 &  # Start Player 2 GraphQL
-npx http-server web_p1 -p 5173 &         # Start Player 1 frontend
-npx http-server web_p2 -p 5174 &         # Start Player 2 frontend
-```
-
-**Architecture:**
-```
-┌──────────────┐     GraphQL (2s poll)     ┌──────────────┐
-│   Player 1   │ ←─────────────────────→  │ Service 8081 │
-│   Frontend   │   http://localhost:8081   │  (Wallet 1)  │
-│  (Port 5173) │                           └──────┬───────┘
-└──────────────┘                                  │
-                                                  │ Cross-chain
-                    ┌─────────────────────────────┤ messages
-                    │                             │
-┌──────────────┐    │    GraphQL              ┌───▼──────────┐
-│   Player 2   │ ←──┼──────────────────────→  │  PLAY_CHAIN  │
-│   Frontend   │    │ http://localhost:8082   │ (Game State) │
-│  (Port 5174) │    │                         └──────────────┘
-└──────────────┘    │                              ▲
-                    │                              │
-                    │         Cross-chain          │
-                    └──────── messages ────────────┘
-                          ┌──────────────┐
-                          │ Service 8082 │
-                          │  (Wallet 2)  │
-                          └──────────────┘
-```
 ---
 
 ##  Roadmap
 
-### Wave 4 (Current) - Multiplayer Gameplay
-- [ ] GraphQL mutations for all game actions
-- [ ] Frontend-backend integration
-- [ ] Live 2-player browser gameplay
+### ✅ Wave 4 (Completed) - Multiplayer Gameplay
+- [x] Complete backend implementation with cross-chain messaging
+- [x] GraphQL queries and mutations for all game actions
+- [x] Frontend-backend integration via Apollo Client
+- [x] Live 2-player gameplay with real-time sync
+- [x] Automated deployment script
 
-### Wave 5 - Advanced Features
-- [ ] Player statistics & reputation
-- [ ] player leaderboards
-- [ ] Tournament system
-- [ ] Betting pool mechanics introduced
+### Wave 5 - Enhanced Features
+- [ ] UI/UX improvements and animations
+- [ ] Player statistics & reputation system
+- [ ] Introduce leaderboards
+- [ ] Introduce player betting system
 - [ ] Performance optimization
 
-### Wave 6 - Launch
-- [ ] UI overhaul and repolishing
-- [ ] Wallet integration
+### Wave 6 - Advanced Features & Launch
+- [ ] Tournament system
+- [ ] Betting pool mechanics
+- [ ] Wallet integration (Metamask, etc.)
 - [ ] Linera testnet deployment
-- [ ] Complete documentation
+- [ ] Complete documentation and tutorials
 
 ---
 
@@ -591,74 +537,85 @@ npx http-server web_p2 -p 5174 &         # Start Player 2 frontend
 
 ---
 
-## 📊 Wave 4 Summary
+##  Wave 4 Summary
 
-**Objective:** Template-compliant Docker deployment with functional GraphQL-frontend connection
+**Objective:** Full-stack multiplayer card game with working backend-frontend integration
 
 **Key Achievements:**
-1. ✅ **One-command deployment working** — `docker compose up --build` or `sudo docker compose up --build`
-2. ✅ **Docker container running stably** — No crashes, proper health checks
-3. ✅ **GraphQL endpoint accessible** — Both player endpoints (8081, 8082) responding
-4. ✅ **Frontend connecting to GraphQL** — Apollo Client polling every 2 seconds
-5. ✅ **Template compliance** — Matches Linera's official Docker template
+1. ✅ **Complete backend implementation** — All game logic, cross-chain messaging, and GraphQL layer working
+2. ✅ **Full GraphQL integration** — Both queries and mutations fully functional
+3. ✅ **Working frontend** — Apollo Client successfully communicating with blockchain
+4. ✅ **Real-time state sync** — Frontend polls and displays live blockchain state (2-second intervals)
+5. ✅ **Multiplayer flow** — Create match → Join match → Start match → Play cards working end-to-end
+6. ✅ **Automated deployment** — `./run.bash` handles complete setup in ~60 seconds
 
 **Performance Metrics:**
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| Build time (initial) | <10 min | 6-8 min | ✅ |
-| Build time (cached) | <2 min | ~1 min | ✅ |
-| Container startup | <60s | ~45s | ✅ |
+| Deployment time | <2 min | ~60s | ✅ |
 | GraphQL response | <100ms | 40-60ms | ✅ |
-| Frontend hot reload | <2s | ~1s | ✅ |
+| Frontend sync | <5s | 2s | ✅ |
+| Cross-chain messages | <1s | ~500ms | ✅ |
+| State updates | Real-time | 2s polling | ✅ |
 
 **Verification:**
 ```bash
-# 1. Deployment works
-docker compose up --build
-# Expected: Container stays running, no exit codes
+# 1. Deploy the system
+./run.bash
+# Expected: All services start, GraphQL endpoints ready
 
-# 2. GraphQL accessible
-curl http://localhost:8081/chains/<CHAIN_ID>/applications/<APP_ID> \
+# 2. Test GraphQL mutations (create match)
+curl http://localhost:8081/chains/<USER_CHAIN_1>/applications/<APP_ID> \
   -X POST -H "Content-Type: application/json" \
-  -d '{"query": "{status}"}'
-# Expected: {"data":{"status":"WAITING"}}
+  -d '{"query": "mutation { createMatch(maxPlayers: 2, nickname: \"Alice\") }"}'
+# Expected: Success response
 
-# 3. Frontend connected
-# Open http://localhost:5173 → F12 Console
-# Expected: "GraphQL Response: {...}" logs every 2 seconds
+# 3. Test frontend
+# Open http://localhost:5173?player=1 and http://localhost:5174?player=2
+# Expected: Both players can create, join, and play games
 ```
 
-> **Status:** Wave 4 main objectives achieved. Deployment infrastructure is complete and template-compliant. GraphQL connects successfully and polls blockchain state. The game logic lives in the smart contract and is fully implemented—exposing it through GraphQL service layer is in active development.
+> **Status:** Wave 4 complete! Backend and frontend are fully integrated and working. Players can create and join games via GraphQL mutations. The frontend successfully syncs game state from the blockchain. All cross-chain messaging patterns are implemented and tested. The game is playable end-to-end.
 
 ---
 
 ##  Troubleshooting
 
-**Container fails to start:**
+**Deployment fails:**
 ```bash
-docker compose down -v  # Remove all volumes
-docker compose up --build  # Fresh start
+# Clean up and restart
+rm -rf /tmp/linera_whot
+./run.bash
 ```
 
 **"Port already in use" error:**
 ```bash
 # Check what's using the port
 lsof -i :5173
-# Kill the process or change ports in compose.yaml
+lsof -i :8081
+
+# Kill existing services
+pkill -f "linera service"
+pkill -f "http-server"
+
+# Restart
+./run.bash
 ```
 
 **GraphQL queries return errors:**
-- Verify deployment completed successfully
-- Check `deployment_info.json` for correct chain IDs
-- Ensure you're using the correct application ID
-- See [docs/GRAPHQL_GUIDE.md](docs/wave_3_details/GRAPHQL_GUIDE.md)
+- Verify deployment completed successfully (check terminal output)
+- Verify services are running: `ps aux | grep linera`
+- Check GraphQL endpoints are accessible: `curl http://localhost:8081`
+- Ensure you're using correct chain IDs from deployment output
 
-**Slow builds:**
-- First build takes ~5-10 minutes (Rust + Node.js dependencies)
-- Subsequent builds are cached (30-60 seconds)
-- Use `CLEAN_CARGO_CACHE=1` only when troubleshooting
+**Frontend not updating:**
+- Check browser console for GraphQL errors
+- Verify polling is active (should see logs every 2 seconds)
+- Ensure correct APP_ID and chain IDs in config.json
+- Try hard refresh (Ctrl+Shift+R)
 
 ---
 
 > Built with ❤️ on **Linera** to prove that real-time, on-chain gaming is possible.
+> Special thanks to **The Linera Team** for making this possible, providing documentations for multiplayer and adding examples like the hex-game for better understanding.

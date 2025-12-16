@@ -11,7 +11,7 @@ use linera_sdk::{
 };
 use linot::{
     Card, CardSuit, GameEvent, LinotAbi, LinotResponse, MatchData, MatchStatus,
-    Message, Operation, Player, SpecialEffect, INITIAL_HAND_SIZE,
+    Message, Operation, Player,
 };
 
 /// The Linot contract

@@ -1,17 +1,23 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import LiveChat from "../../../components/LiveChat";
-import Timer from "../../../components/Timer";
-import GamePlayersTab from "../../../components/GamePlayersTab";
-import DrawPile from "../../../components/DrawPile";
-import PlayerTwo from "../../../components/PlayerTwo";
-import PlayerOne from "../../../components/PlayerOne";
-import { useWhotGame } from "../../../hooks/useWhotGame";
-import { OpponentView } from "../../../lib/types";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import LiveChat from "../../components/LiveChat";
+import Timer from "../../components/Timer";
+import GamePlayersTab from "../../components/GamePlayersTab";
+import DrawPile from "../../components/DrawPile";
+import PlayerTwo from "../../components/PlayerTwo";
+import PlayerOne from "../../components/PlayerOne";
+import { useWhotGame } from "../../hooks/useWhotGame";
+import { OpponentView } from "../../lib/types";
 
-export default function GameClient() {
-  const { gameState, loading, error, joinGame, startGame, playCard, drawCard, callLastCard, playerNumber } = useWhotGame(1);
+function GameClient() {
+  const searchParams = useSearchParams();
+  const playerNumberParam = searchParams.get("player");
+  const playerNumber = (playerNumberParam === "2" ? 2 : 1) as 1 | 2;
+
+  const { gameState, loading, error, joinGame, startGame, playCard, drawCard, callLastCard } = useWhotGame(playerNumber);
   const [username, setUsername] = useState<string>("");
+  const [maxPlayers, setMaxPlayers] = useState<number>(2);
 
   useEffect(() => {
     const storedProfile = localStorage.getItem(`whot_player_profile_${playerNumber}`);
@@ -20,6 +26,9 @@ export default function GameClient() {
         const profile = JSON.parse(storedProfile);
         if (profile.username) {
           setUsername(profile.username);
+        }
+        if (profile.maxPlayers) {
+          setMaxPlayers(profile.maxPlayers);
         }
       } catch (e) {
         console.error("Failed to parse profile", e);
@@ -51,13 +60,31 @@ export default function GameClient() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#77F0FC] to-[#19D3F9]">
          <div className="bg-white/30 backdrop-blur-md p-10 rounded-2xl shadow-xl flex flex-col items-center gap-6 border border-white/50">
             <h1 className="text-4xl font-lilitaone text-[#01626F]">Welcome {username || `Player ${playerNumber}`}</h1>
-            <p className="text-[#01626F] text-lg">Connect to the game server to start playing.</p>
-            <button 
-              onClick={() => joinGame(username || `Player ${playerNumber}`)}
-              className="px-8 py-4 bg-[#EA463D] hover:bg-[#d63a32] text-white text-2xl font-lilitaone rounded-full shadow-lg transform transition active:scale-95"
-            >
-              Join Game
-            </button>
+            {playerNumber === 1 ? (
+              <>
+                <p className="text-[#01626F] text-lg text-center">
+                  Create a new game for {maxPlayers} players
+                </p>
+                <button 
+                  onClick={() => joinGame(username || `Player ${playerNumber}`, maxPlayers)}
+                  className="px-8 py-4 bg-[#EA463D] hover:bg-[#d63a32] text-white text-2xl font-lilitaone rounded-full shadow-lg transform transition active:scale-95"
+                >
+                  Create Game ({maxPlayers} Players)
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-[#01626F] text-lg text-center">
+                  Join an existing game created by Player 1.
+                </p>
+                <button 
+                  onClick={() => joinGame(username || `Player ${playerNumber}`, maxPlayers)}
+                  className="px-8 py-4 bg-[#EA463D] hover:bg-[#d63a32] text-white text-2xl font-lilitaone rounded-full shadow-lg transform transition active:scale-95"
+                >
+                  Join Game
+                </button>
+              </>
+            )}
          </div>
       </div>
     );
@@ -140,5 +167,17 @@ export default function GameClient() {
         />
       </div>
     </div>
+  );
+}
+
+export default function GamePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#77F0FC]">
+        <p className="text-3xl font-lilitaone text-[#01626F] animate-pulse">Loading...</p>
+      </div>
+    }>
+      <GameClient />
+    </Suspense>
   );
 }
