@@ -18,8 +18,9 @@ RUN cargo install --locked linera-service@0.15.6
 RUN rustup target add wasm32-unknown-unknown
 
 # Install Node.js for frontend
+# NodeSource setup may fail, so ensure npm is installed from Debian repos as fallback
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
-    && apt-get install -y nodejs \
+    && apt-get install -y nodejs npm \
     && npm install -g http-server
 
 WORKDIR /build
