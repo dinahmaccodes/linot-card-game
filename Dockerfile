@@ -10,7 +10,9 @@ RUN apt-get update && apt-get install -y \
     jq \
     curl
 
-RUN cargo install --locked linera-service@0.15.6 linera-storage-service@0.15.6
+# Install Linera tools separately to reduce memory pressure
+RUN cargo install --locked linera-storage-service@0.15.6
+RUN cargo install --locked linera-service@0.15.6
 
 # Add WASM target for building Linera contracts
 RUN rustup target add wasm32-unknown-unknown
