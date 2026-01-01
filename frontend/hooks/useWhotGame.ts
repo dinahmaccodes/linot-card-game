@@ -60,9 +60,10 @@ export function useWhotGame(playerNumber: 1 | 2) {
         calledLastCard: data.matchState.players?.find((p: any) => p?.owner === currentOwner)?.calledLastCard || false,
         opponents: (data.matchState.players || []).filter((p: any) => p && p.owner !== currentOwner).map((p: any) => ({
           nickname: p.nickname,
-          handSize: p.handSize,
+          cardCount: p.handSize || 0, // Map handSize to cardCount
           calledLastCard: p.calledLastCard,
-          owner: p.owner
+          owner: p.owner,
+          isActive: p.isActive || false
         })),
         topCard: data.matchState.discardPile?.[data.matchState.discardPile.length - 1] || null,
         deckSize: data.matchState.deckSize || 0,

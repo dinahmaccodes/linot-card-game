@@ -1,0 +1,142 @@
+import React from "react";
+import GameButton from "./GameButton";
+import { House, RotateCcw } from "lucide-react";
+
+interface WinModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  clearTime?: string;
+  stars?: number; // 1-3 stars
+  coinsEarned?: number;
+  beatTheTime?: boolean;
+  specialCardsPlayed?: number;
+  onReplay?: () => void;
+  onLobby?: () => void;
+}
+
+export default function WinModal({
+  isOpen,
+  onClose,
+  clearTime = "4:14",
+  stars = 3,
+  coinsEarned = 30,
+  beatTheTime = true,
+  specialCardsPlayed = 2,
+  onReplay,
+  onLobby,
+}: WinModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center mt-27 ">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-[#0101010D] backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="z-20">
+        <img
+          src="banner.svg"
+          alt=""
+          className="w-160 h-160 z-30 absolute -top-5 left-1/2 -translate-x-1/2"
+        />
+        {/* Modal */}
+        <div className="border-5 rounded-4xl">
+          <div
+            className="relative w-[500px] rounded-3xl p-8 shadow-2xl border-10 backdrop-blur-[300px] border-[#6AE4F8] "
+            style={{
+              background: "rgba(34, 186, 206, 1)",
+            }}
+          >
+            {/* Content */}
+            <div className="relative z-10 flex flex-col items-center gap-25">
+              {/* Clear Time Badge */}
+              <div
+                className=" z-5 -mt-10  px-6 py-4  rounded-bl-3xl rounded-br-3xl font-lilitaone text-white text-lg border"
+                style={{
+                  background: "rgba(39, 159, 175, 1)",
+                  backdropFilter: "blur(10px)",
+                }}
+              >
+                <p className="mt-10"> Clear Time: {clearTime}</p>
+              </div>
+              {/* Stars */}
+              <div className="flex gap-4 mt-4">
+                {[1, 2, 3].map((star) => (
+                  <div
+                    key={star}
+                    className={`text-8xl transition-all duration-300 ${
+                      star <= stars ? "scale-110" : "opacity-30 grayscale"
+                    }`}
+                  >
+                    ⭐
+                  </div>
+                ))}
+              </div>
+              {/* Divider */}
+              {/* <div className="w-full h-px bg-white/30 my-2" /> */}
+              {/* Coins Earned */}
+              {/* <div className="text-center">
+              <h2 className="text-4xl font-lilitaone text-white drop-shadow-md">
+                +{coinsEarned} Coins Earned!
+              </h2>
+            </div> */}
+              {/* Stats */}
+              {/* <div className="flex gap-4 w-full">
+              <div
+                className="flex-1 px-4 py-3 rounded-xl text-center"
+                style={{
+                  background: "rgba(255, 255, 255, 0.2)",
+                  backdropFilter: "blur(10px)",
+                }}
+              >
+                <p className="text-sm font-satoshi text-white/80">
+                  Beat the time
+                </p>
+                <p className="text-xl font-lilitaone text-white">
+                  +{beatTheTime ? "20" : "0"} 💰
+                </p>
+              </div>
+              <div
+                className="flex-1 px-4 py-3 rounded-xl text-center"
+                style={{
+                  background: "rgba(255, 255, 255, 0.2)",
+                  backdropFilter: "blur(10px)",
+                }}
+              >
+                <p className="text-sm font-satoshi text-white/80">
+                  Played {specialCardsPlayed} special cards
+                </p>
+                <p className="text-xl font-lilitaone text-white">+10 💰</p>
+              </div>
+            </div> */}
+              {/* Action Buttons */}
+              <div className="flex gap-4 w-full mt-4">
+                <GameButton
+                  onClick={onReplay}
+                  backgroundColor="#01626F"
+                  width="w-full"
+                  customShadow="-1.4px -2.1px 4.89px 0px rgba(1, 98, 111, 0.8) inset, 4.19px 2.1px 4.89px 0px rgba(119, 240, 252, 0.25) inset"
+                >
+                  <p className="flex gap-5">
+                    <span>replay</span> <RotateCcw />
+                  </p>
+                </GameButton>
+                <GameButton
+                  onClick={onLobby}
+                  backgroundColor="#4ADE80"
+                  width="w-full"
+                  customShadow="-1.4px -2.1px 4.89px 0px rgba(34, 197, 94, 0.8) inset, 4.19px 2.1px 4.89px 0px rgba(134, 239, 172, 0.25) inset"
+                >
+                  <p className="flex gap-5">
+                    <span> lobby </span> <House />
+                  </p>
+                </GameButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

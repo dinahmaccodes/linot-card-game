@@ -1,0 +1,25 @@
+<svg width="206" height="136" viewBox="0 0 206 136" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="103" cy="68" r="68" fill="#E23A2F"/>
+<foreignObject x="4.17773" y="-32.2109" width="114.037" height="113.105"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(25px);clip-path:url(#bgblur_0_1216_41_clip_path);height:100%;width:100%"></div></foreignObject><g filter="url(#filter0_dd_1216_41)" data-figma-bg-blur-radius="50">
+<path d="M55.7862 26.8948C55.1548 27.8694 54.5537 29.4677 54.1957 30.5161C54.0971 30.8048 54.4383 31.0205 54.6622 30.8132L68.1185 18.3566C68.3726 18.1213 68.0754 17.6786 67.7575 17.8162C67.1075 18.0974 66.397 18.3827 65.8145 18.5621C63.3109 19.3332 62.1698 19.9974 60.1631 21.6816C58.2477 23.2891 57.146 24.7962 55.7862 26.8948Z" fill="white" fill-opacity="0.48" shape-rendering="crispEdges"/>
+</g>
+<defs>
+<filter id="filter0_dd_1216_41" x="4.17773" y="-32.2109" width="114.037" height="113.105" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="4"/>
+<feGaussianBlur stdDeviation="3.5"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1216_41"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="0.5"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/>
+<feBlend mode="normal" in2="effect1_dropShadow_1216_41" result="effect2_dropShadow_1216_41"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_1216_41" result="shape"/>
+</filter>
+<clipPath id="bgblur_0_1216_41_clip_path" transform="translate(-4.17773 32.2109)"><path d="M55.7862 26.8948C55.1548 27.8694 54.5537 29.4677 54.1957 30.5161C54.0971 30.8048 54.4383 31.0205 54.6622 30.8132L68.1185 18.3566C68.3726 18.1213 68.0754 17.6786 67.7575 17.8162C67.1075 18.0974 66.397 18.3827 65.8145 18.5621C63.3109 19.3332 62.1698 19.9974 60.1631 21.6816C58.2477 23.2891 57.146 24.7962 55.7862 26.8948Z"/>
+</clipPath></defs>
+</svg>

@@ -1,0 +1,25 @@
+<svg width="121" height="129" viewBox="0 0 121 129" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.11523 15.6055C4.11523 8.97806 9.48782 3.60547 16.1152 3.60547H108.3C114.927 3.60547 120.3 8.97805 120.3 15.6055V116.396C120.3 123.024 114.927 128.396 108.3 128.396H16.1152C9.48782 128.396 4.11523 123.024 4.11523 116.396V15.6055Z" fill="#E23A2F"/>
+<foreignObject x="-43" y="-44.1133" width="113.01" height="113.012"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(25px);clip-path:url(#bgblur_0_1216_90_clip_path);height:100%;width:100%"></div></foreignObject><g filter="url(#filter0_dd_1216_90)" data-figma-bg-blur-radius="50">
+<path d="M7 15.8867C7 10.3639 11.4772 5.88672 17 5.88672H19.7102C20.0278 5.88672 20.1276 6.31575 19.8426 6.45593L14.6724 8.99852C12.6902 9.9733 11.0866 11.5769 10.1118 13.5591L7.56921 18.7293C7.42903 19.0143 7 18.9145 7 18.5969V15.8867Z" fill="white" fill-opacity="0.48" shape-rendering="crispEdges"/>
+</g>
+<defs>
+<filter id="filter0_dd_1216_90" x="-43" y="-44.1133" width="113.01" height="113.012" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="4"/>
+<feGaussianBlur stdDeviation="3.5"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1216_90"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="0.5"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/>
+<feBlend mode="normal" in2="effect1_dropShadow_1216_90" result="effect2_dropShadow_1216_90"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_1216_90" result="shape"/>
+</filter>
+<clipPath id="bgblur_0_1216_90_clip_path" transform="translate(43 44.1133)"><path d="M7 15.8867C7 10.3639 11.4772 5.88672 17 5.88672H19.7102C20.0278 5.88672 20.1276 6.31575 19.8426 6.45593L14.6724 8.99852C12.6902 9.9733 11.0866 11.5769 10.1118 13.5591L7.56921 18.7293C7.42903 19.0143 7 18.9145 7 18.5969V15.8867Z"/>
+</clipPath></defs>
+</svg>

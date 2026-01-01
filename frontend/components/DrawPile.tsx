@@ -1,4 +1,5 @@
 import React from "react";
+import GameButton from "./GameButton";
 
 interface DrawPileProps {
   deckSize: number;
@@ -7,14 +8,13 @@ interface DrawPileProps {
 
 export default function DrawPile({ deckSize, onDraw }: DrawPileProps) {
   return (
-    <div 
-      className="w-32 h-44 bg-[#01626F] rounded-xl border-4 border-white flex items-center justify-center cursor-pointer shadow-xl transform transition active:scale-95"
-      onClick={onDraw}
-    >
-      <div className="text-white text-center">
-        <p className="font-lilitaone text-xl">DRAW</p>
-        <p className="font-bold text-sm">{deckSize} Cards</p>
+    <div className="flex flex-col items-center absolute bottom-70 gap-1.5">
+      <div>
+        <img src="/drawcard.svg" alt="drawcard" />
       </div>
+      <GameButton onClick={onDraw} backgroundColor="#E65150">
+        Draw Pile ({deckSize})
+      </GameButton>
     </div>
   );
 }

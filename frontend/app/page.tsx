@@ -30,7 +30,7 @@ export default function Home() {
         <img src="/title-home.svg" alt="" />
 
         <div className="mt-12 flex flex-col items-center">
-          <div className="animate-bounce-slow z-[10] animate-float animate-float-delayed">
+          <div className="animate-bounce-slow z-10 animate-float animate-float-delayed">
             <img
               src="/red-octopus.svg"
               alt="Octopus"
@@ -46,7 +46,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-[#B93838] rounded-full translate-y-2"></div>
             <div className="relative bg-[#EA4C4C] px-16 py-3 rounded-full border-b-4 border-[#B93838]">
               <span className="text-[55px]/[44px] text-white drop-shadow-md">
-                play
+                connect
               </span>
             </div>
           </button>
@@ -94,7 +94,7 @@ export default function Home() {
       </div>
 
       {showSplash && (
-        <div className="fixed inset-0 bg-black/50 z-[999] flex justify-center items-center font-lilitaone">
+        <div className="fixed inset-0 bg-black/50 z-999 flex justify-center items-center font-lilitaone">
           <div className="w-[1056px] text-center">
             <div
               className="relative w-full mb-10 h-[650px] py-[62px] px-[78px]

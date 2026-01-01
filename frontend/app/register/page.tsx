@@ -28,11 +28,12 @@ function RegisterPage() {
   const [playerNumber, setPlayerNumber] = useState<1 | 2 | null>(null);
   const [maxPlayers, setMaxPlayers] = useState<number>(2);
 
-  const isFormValid = username.trim() !== "" && selectedAvatar !== null && selectedColor !== null;
+  const isFormValid =
+    username.trim() !== "" && selectedAvatar !== null && selectedColor !== null;
 
   const handleSelectPlayer = (player: 1 | 2) => {
     setPlayerNumber(player);
-    
+
     if (username.trim() && selectedAvatar !== null && selectedColor !== null) {
       // Store profile in localStorage
       const profile = {
@@ -42,8 +43,11 @@ function RegisterPage() {
         playerNumber: player,
         maxPlayers: player === 1 ? maxPlayers : 2, // Only Player 1 sets max players
       };
-      localStorage.setItem(`whot_player_profile_${player}`, JSON.stringify(profile));
-      
+      localStorage.setItem(
+        `whot_player_profile_${player}`,
+        JSON.stringify(profile)
+      );
+
       // Navigate to game
       router.push(`/game?player=${player}`);
     }
@@ -151,7 +155,7 @@ function RegisterPage() {
             <div className="py-2 px-[22px]">
               <div className="bg-[#0FB6C6]/10 border border-[#0FB6C6]/30 rounded-lg p-4">
                 <p className="text-[#01626F] font-lilitaone text-lg">
-                   2-Player Match
+                  2-Player Match
                 </p>
                 <p className="text-[#6CA0A7] text-sm mt-1">
                   This match will be for 2 players
