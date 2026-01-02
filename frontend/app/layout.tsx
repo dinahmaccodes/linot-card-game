@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Titan_One, Lilita_One } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import { UserProfileProvider } from "@/lib/UserProfileContext";
 
 // Load the font
 const titanOne = Titan_One({
@@ -54,7 +55,9 @@ export default function RootLayout({
       <body
         className={`${titanOne.className} ${lilitaOne.variable} ${satoshi.variable} antialiased`}
       >
-        {children}
+        <UserProfileProvider>
+          {children}
+        </UserProfileProvider>
       </body>
     </html>
   );

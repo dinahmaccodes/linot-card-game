@@ -124,7 +124,7 @@ export default function WinModal({
                 </GameButton>
                 <GameButton
                   onClick={onLobby}
-                  backgroundColor="#4ADE80"
+                  backgroundColor="#52AD6D"
                   width="w-full"
                   customShadow="-1.4px -2.1px 4.89px 0px rgba(34, 197, 94, 0.8) inset, 4.19px 2.1px 4.89px 0px rgba(134, 239, 172, 0.25) inset"
                 >

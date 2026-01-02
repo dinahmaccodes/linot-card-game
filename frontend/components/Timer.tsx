@@ -1,6 +1,11 @@
+"use client";
 import React from "react";
+import { useUserProfile } from "@/lib/UserProfileContext";
 
 function Timer() {
+  const { userProfile } = useUserProfile();
+  const username = userProfile?.username || "Player";
+
   return (
     <div className="relative font-lilitaone text-[#01626F] ml-10 flex flex-col pt-[194px]">
       <div className="absolute top-0 -right-7 w-[280px] z-0 animate-float-delayed origin-bottom-right">
@@ -11,7 +16,7 @@ function Timer() {
             className="w-full drop-shadow-md"
           />
           <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center p-8 pt-0 text-center leading-[110%] text-[20px]">
-            <h3>Dinah it's your turn! 3 mins to make a move. Make it count</h3>
+            <h3>{username}, it's your turn to make a move. Make it count</h3>
           </div>
         </div>
       </div>

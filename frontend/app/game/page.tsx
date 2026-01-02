@@ -30,7 +30,7 @@ function GameClient() {
   } = useWhotGame(playerNumber);
   const [username, setUsername] = useState<string>("");
   const [maxPlayers, setMaxPlayers] = useState<number>(2);
-  
+
   // Modal states for testing/editing
   const [showWinModal, setShowWinModal] = useState(false);
   const [showLoseModal, setShowLoseModal] = useState(false);
@@ -298,7 +298,7 @@ function GameClient() {
   // 3. Game Board (In Progress or Finished)
   return (
     <div
-      className="min-h-screen w-full relative overflow-hidden flex flex-col"
+      className="h-screen w-full relative overflow-hidden flex flex-col"
       style={{
         background: "linear-gradient(180deg, #77F0FC 0%, #19D3F9 100%)",
       }}
@@ -315,14 +315,14 @@ function GameClient() {
         alt=""
       />
       <Navbar />
-      <div className="min-h-screen w-full relative overflow-hidden flex gap-x-12.5 px-5">
+      <div className="flex-1 w-full relative overflow-hidden flex gap-x-12.5 px-5">
         <div className="space-y-12 pt-10 z-40">
           <LiveChat />
-          <div className="mt-100">
+          <div className="mt-10">
             <Timer />
           </div>
         </div>
-        <div className="flex-1 space-y-20 pt-10 z-40 ">
+        <div className="flex-1 space-y-20 pt-5 z-40 ">
           <PlayerTwo
             opponent={gameState.opponents[0]}
             topCard={gameState.topCard}
@@ -336,7 +336,7 @@ function GameClient() {
             onCallLastCard={callLastCard}
           />
         </div>
-        <div className="space-y-[46px] z-40">
+        <div className="space-y-[46px] z-40 mr-5">
           <GamePlayersTab
             playerNumber={playerNumber as 1 | 2}
             gameState={gameState}
@@ -346,7 +346,7 @@ function GameClient() {
       </div>
 
       {/* TEST BUTTONS - For Modal Design Testing */}
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-4">
+      {/* <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-4">
         <button
           onClick={() => setShowWinModal(true)}
           className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-lilitaone rounded-lg shadow-lg transition"
@@ -359,7 +359,7 @@ function GameClient() {
         >
           😢 Test Lose Modal
         </button>
-      </div>
+      </div> */}
 
       {/* Modals */}
       <WinModal
@@ -394,8 +394,6 @@ function GameClient() {
         }}
       />
     </div>
-
-    
   );
 }
 

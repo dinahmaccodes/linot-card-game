@@ -54,17 +54,25 @@ export function useWhotGame(playerNumber: 1 | 2) {
       }
 
       // Transform to PlayerView
+      // Filter opponents by excluding the current player based on their position
+      // Player 1 is at index 0, Player 2 is at index 1
+      const myPlayerIndex = playerNumber - 1;
+      const allPlayers = data.matchState.players || [];
+      
       const transformed: PlayerView = {
         myCards: data.myHand || [],
         myCardCount: data.myHand?.length || 0,
-        calledLastCard: data.matchState.players?.find((p: any) => p?.owner === currentOwner)?.calledLastCard || false,
-        opponents: (data.matchState.players || []).filter((p: any) => p && p.owner !== currentOwner).map((p: any) => ({
-          nickname: p.nickname,
-          cardCount: p.handSize || 0, // Map handSize to cardCount
-          calledLastCard: p.calledLastCard,
-          owner: p.owner,
-          isActive: p.isActive || false
-        })),
+        calledLastCard: allPlayers[myPlayerIndex]?.calledLastCard || false,
+        opponents: allPlayers
+          .map((p: any, index: number) => ({
+            nickname: p.nickname,
+            cardCount: p.handSize || 0,
+            calledLastCard: p.calledLastCard,
+            owner: p.owner,
+            isActive: p.isActive || false,
+            index: index
+          }))
+          .filter((p: any) => p.index !== myPlayerIndex), // Exclude current player by index
         topCard: data.matchState.discardPile?.[data.matchState.discardPile.length - 1] || null,
         deckSize: data.matchState.deckSize || 0,
         currentPlayerIndex: data.matchState.currentPlayerIndex || 0,

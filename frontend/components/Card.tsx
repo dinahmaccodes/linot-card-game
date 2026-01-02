@@ -40,7 +40,7 @@ export default function Card({
     <div
       onClick={isPlayable ? onClick : undefined}
       className={`
-        relative w-41.5 h-60.5 bg-white rounded-2xl overflow-hidden
+        relative w-37.5 h-50.5 bg-white rounded-2xl overflow-hidden
         transition-all duration-200
         ${
           isPlayable
@@ -79,7 +79,7 @@ export default function Card({
           <div className="text-center flex flex-col gap-2">
             {/* Outlined Linot text */}
             <span
-              className="text-5xl font-lilitaone"
+              className="text-3xl font-lilitaone"
               style={{
                 WebkitTextStroke: "1px #E23A2F",
                 WebkitTextFillColor: "transparent",
@@ -89,16 +89,12 @@ export default function Card({
               Linot
             </span>
             {/* Filled Linot text */}
-            <span className="text-5xl font-lilitaone text-[#E23A2F] ml-10">
+            <span className="text-3xl font-lilitaone text-[#E23A2F] ml-10">
               Linot
             </span>
           </div>
         ) : (
-          <img
-            src={suitImages[suit]}
-            alt={suit}
-            className="w-[130px] h-[130px]"
-          />
+          <img src={suitImages[suit]} alt={suit} className="w-25 h-25" />
         )}
       </div>
 

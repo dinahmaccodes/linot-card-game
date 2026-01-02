@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useUserProfile } from "@/lib/UserProfileContext";
 
 const AVATARS = [
   "/user-pfp.svg",
@@ -22,6 +23,7 @@ const COLORS = [
 
 function RegisterPage() {
   const router = useRouter();
+  const { setUserProfile } = useUserProfile();
   const [username, setUsername] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
   const [selectedColor, setSelectedColor] = useState<number | null>(null);
@@ -35,7 +37,7 @@ function RegisterPage() {
     setPlayerNumber(player);
 
     if (username.trim() && selectedAvatar !== null && selectedColor !== null) {
-      // Store profile in localStorage
+      // Create profile object
       const profile = {
         username,
         avatar: AVATARS[selectedAvatar],
@@ -43,10 +45,9 @@ function RegisterPage() {
         playerNumber: player,
         maxPlayers: player === 1 ? maxPlayers : 2, // Only Player 1 sets max players
       };
-      localStorage.setItem(
-        `whot_player_profile_${player}`,
-        JSON.stringify(profile)
-      );
+      
+      // Store in context (which also saves to localStorage)
+      setUserProfile(profile);
 
       // Navigate to game
       router.push(`/game?player=${player}`);
