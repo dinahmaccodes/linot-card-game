@@ -9,6 +9,7 @@ import PlayerTwo from "../../components/PlayerTwo";
 import PlayerOne from "../../components/PlayerOne";
 import WinModal from "../../components/WinModal";
 import LoseModal from "../../components/LoseModal";
+import SpecialCardModal from "../../components/SpecialCardModal";
 import Card from "../../components/Card";
 import PenaltyNotification from "../../components/PenaltyNotification";
 import HoldOnNotification from "../../components/HoldOnNotification";
@@ -43,6 +44,16 @@ function GameClient() {
   // Modal states for testing/editing
   const [showWinModal, setShowWinModal] = useState(false);
   const [showLoseModal, setShowLoseModal] = useState(false);
+  
+  // Special card modal state
+  const [specialCardModal, setSpecialCardModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    cardSuit: "CIRCLE" | "CROSS" | "TRIANGLE" | "SQUARE" | "STAR" | "WHOT";
+    cardValue: number;
+    isGeneralMarket?: boolean;
+  } | null>(null);
 
   // Track previous penalty for notification changes
   const [previousPenalty, setPreviousPenalty] = useState(0);
@@ -79,9 +90,110 @@ function GameClient() {
   // Track penalty changes for notifications
   useEffect(() => {
     if (gameState) {
+      const opponentName = gameState.opponents[0]?.nickname || "Opponent";
+      const isMyTurn = gameState.currentPlayerIndex === playerNumber - 1;
+      
+      // Detect when penalty INCREASES (player blocked/defended)
+      // Only show to the player who BLOCKED (the one whose turn it is)
+      if (previousPenalty > 0 && gameState.pendingPenalty > previousPenalty && isMyTurn) {
+        const stackedAmount = gameState.pendingPenalty - previousPenalty;
+        let title = "";
+        let message = "";
+        let cardSuit: "CIRCLE" | "CROSS" | "TRIANGLE" | "SQUARE" | "STAR" | "WHOT" = "CIRCLE";
+        let cardValue = 2;
+        
+        // Blocking Pick 2 with Pick 2
+        if (stackedAmount === 2 && previousPenalty === 2) {
+          title = "Blocked!!";
+          message = `🎴 You blocked with Pick 2! ${opponentName} now faces 4 cards total!`;
+          cardSuit = "CIRCLE";
+          cardValue = 2;
+        } 
+        // Blocking Pick 3 with Pick 3
+        else if (stackedAmount === 3 && previousPenalty === 3) {
+          title = "Blocked!!";
+          message = `🎴 You blocked with Pick 3! ${opponentName} now faces 6 cards total!`;
+          cardSuit = "CROSS";
+          cardValue = 5;
+        }
+        // Multiple Pick 2 stacks
+        else if (stackedAmount === 2 && previousPenalty >= 4 && previousPenalty % 2 === 0) {
+          title = "Blocked!!";
+          message = `🎴 You blocked with Pick 2! ${opponentName} now faces ${gameState.pendingPenalty} cards total!`;
+          cardSuit = "CIRCLE";
+          cardValue = 2;
+        }
+        // Multiple Pick 3 stacks
+        else if (stackedAmount === 3 && previousPenalty >= 6 && previousPenalty % 3 === 0) {
+          title = "Blocked!!";
+          message = `🎴 You blocked with Pick 3! ${opponentName} now faces ${gameState.pendingPenalty} cards total!`;
+          cardSuit = "CROSS";
+          cardValue = 5;
+        }
+        // Generic blocking
+        else {
+          title = "Blocked!!";
+          message = `🎴 You stacked +${stackedAmount}! ${opponentName} now faces ${gameState.pendingPenalty} cards total!`;
+          cardSuit = "CIRCLE";
+          cardValue = 2;
+        }
+        
+        setSpecialCardModal({
+          isOpen: true,
+          title,
+          message,
+          cardSuit,
+          cardValue,
+        });
+      }
+      // Detect when penalty is cleared (player drew cards)
+      // Only show to the player who DREW (the one whose turn it is NOT)
+      else if (previousPenalty > 0 && gameState.pendingPenalty === 0 && !isMyTurn) {
+        // Determine card type and message
+        let title = "";
+        let message = "";
+        let cardSuit: "CIRCLE" | "CROSS" | "TRIANGLE" | "SQUARE" | "STAR" | "WHOT" = "CIRCLE";
+        let cardValue = 2;
+        
+        if (previousPenalty === 2) {
+          title = "Pick 2!!";
+          message = `Oh no! ${opponentName} played Pick 2! You drew 2 cards`;
+          cardSuit = "CIRCLE";
+          cardValue = 2;
+        } else if (previousPenalty === 3) {
+          title = "Pick 3!!";
+          message = `Ouch! ${opponentName} played Pick 3! You drew 3 cards`;
+          cardSuit = "CROSS";
+          cardValue = 5;
+        } else if (previousPenalty === 4) {
+          title = "Stacked Pick 2!!";
+          message = `Double trouble! You drew 4 cards from stacked Pick 2's (2+2)`;
+          cardSuit = "CIRCLE";
+          cardValue = 2;
+        } else if (previousPenalty === 6) {
+          title = "Stacked Pick 3!!";
+          message = `Triple threat! You drew 6 cards from stacked Pick 3's (3+3)`;
+          cardSuit = "CROSS";
+          cardValue = 5;
+        } else {
+          title = "Penalty Cards!!";
+          message = `You drew ${previousPenalty} cards from stacked penalties!`;
+          cardSuit = "CIRCLE";
+          cardValue = 2;
+        }
+        
+        setSpecialCardModal({
+          isOpen: true,
+          title,
+          message,
+          cardSuit,
+          cardValue,
+        });
+      }
+      
       setPreviousPenalty(gameState.pendingPenalty);
     }
-  }, [gameState?.pendingPenalty]);
+  }, [gameState?.pendingPenalty, previousPenalty, gameState?.opponents, gameState?.currentPlayerIndex, playerNumber]);
 
   // Track player index changes for Hold On notification
   useEffect(() => {
@@ -93,9 +205,27 @@ function GameClient() {
   // Track deck size changes for General Market notification
   useEffect(() => {
     if (gameState && gameState.deckSize !== previousDeckSize) {
+      // Check if General Market (card 14) was played
+      if (
+        gameState.topCard &&
+        Number(gameState.topCard.value) === 14 &&
+        previousDeckSize > gameState.deckSize
+      ) {
+        const opponentName = gameState.opponents[0]?.nickname || "Opponent";
+        
+        setSpecialCardModal({
+          isOpen: true,
+          title: "General Market!!",
+          message: `${opponentName} played 14 for General Market so you get one extra card added`,
+          isGeneralMarket: true,
+          cardSuit: "WHOT",
+          cardValue: 14,
+        });
+      }
+      
       setPreviousDeckSize(gameState.deckSize);
     }
-  }, [gameState?.deckSize, previousDeckSize]);
+  }, [gameState?.deckSize, previousDeckSize, gameState?.topCard, gameState?.opponents]);
 
   // Track opponent hand size changes for Draw notification
   useEffect(() => {
@@ -404,146 +534,171 @@ function GameClient() {
       />
       <Navbar />
 
-      {/* Penalty Card Notification */}
-      <PenaltyNotification
-        pendingPenalty={gameState.pendingPenalty}
-        previousPenalty={previousPenalty}
-        opponentName={gameState.opponents[0]?.nickname || "Opponent"}
-        currentPlayerName={username || `Player ${playerNumber}`}
-        isMyTurn={gameState.currentPlayerIndex !== playerNumber - 1}
-      />
+      {/* Only show game content if modals are NOT open */}
+      {!showWinModal && !showLoseModal && (
+        <>
+          {/* Penalty Card Notification - DISABLED: Now using SpecialCardModal instead */}
+          {/* <PenaltyNotification
+            pendingPenalty={gameState.pendingPenalty}
+            previousPenalty={previousPenalty}
+            opponentName={gameState.opponents[0]?.nickname || "Opponent"}
+            currentPlayerName={username || `Player ${playerNumber}`}
+            isMyTurn={gameState.currentPlayerIndex !== playerNumber - 1}
+          /> */}
 
-      {/* Hold On Notification */}
-      <HoldOnNotification
-        previousPlayerIndex={previousPlayerIndex}
-        currentPlayerIndex={gameState.currentPlayerIndex}
-        playerNumber={playerNumber}
-        playerName={username || `Player ${playerNumber}`}
-        skippedPlayerName={
-          gameState.opponents.find(
-            (_, idx) => idx + 1 === previousPlayerIndex + 1
-          )?.nickname || "Opponent"
-        }
-      />
+          {/* Hold On Notification */}
+          <HoldOnNotification
+            previousPlayerIndex={previousPlayerIndex}
+            currentPlayerIndex={gameState.currentPlayerIndex}
+            playerNumber={playerNumber}
+            playerName={username || `Player ${playerNumber}`}
+            skippedPlayerName={
+              gameState.opponents.find(
+                (_, idx) => idx + 1 === previousPlayerIndex + 1
+              )?.nickname || "Opponent"
+            }
+          />
 
-      {/* Draw Notification - shows when opponent draws cards */}
-      <DrawNotification
-        opponentName={gameState.opponents[0]?.nickname || "Opponent"}
-        opponentHandSize={gameState.opponents[0]?.cardCount || 0}
-        previousOpponentHandSize={previousOpponentHandSize}
-        isMyTurn={gameState.currentPlayerIndex === playerNumber - 1}
-      />
+          {/* Draw Notification - shows when opponent draws cards */}
+          <DrawNotification
+            opponentName={gameState.opponents[0]?.nickname || "Opponent"}
+            opponentHandSize={gameState.opponents[0]?.cardCount || 0}
+            previousOpponentHandSize={previousOpponentHandSize}
+            isMyTurn={gameState.currentPlayerIndex === playerNumber - 1}
+          />
 
-      {/* Last Card Notification - shows when opponent has 1 card left */}
-      <LastCardNotification
-        opponentName={gameState.opponents[0]?.nickname || "Opponent"}
-        opponentHandSize={gameState.opponents[0]?.cardCount || 0}
-        previousOpponentHandSize={previousOpponentHandSize}
-      />
+          {/* Last Card Notification - shows when opponent has 1 card left */}
+          <LastCardNotification
+            opponentName={gameState.opponents[0]?.nickname || "Opponent"}
+            opponentHandSize={gameState.opponents[0]?.cardCount || 0}
+            previousOpponentHandSize={previousOpponentHandSize}
+          />
 
-      {/* General Market Notification */}
-      <GeneralMarketNotification
-        previousDeckSize={previousDeckSize}
-        currentDeckSize={gameState.deckSize}
-        currentPlayerIndex={gameState.currentPlayerIndex}
-        previousPlayerIndex={previousPlayerIndex}
-        playerNumber={playerNumber}
-        opponentName={gameState.opponents[0]?.nickname || "Opponent"}
-        topCard={gameState.topCard}
-      />
+          {/* General Market Notification - DISABLED: Now using SpecialCardModal instead */}
+          {/* <GeneralMarketNotification
+            previousDeckSize={previousDeckSize}
+            currentDeckSize={gameState.deckSize}
+            currentPlayerIndex={gameState.currentPlayerIndex}
+            previousPlayerIndex={previousPlayerIndex}
+            playerNumber={playerNumber}
+            opponentName={gameState.opponents[0]?.nickname || "Opponent"}
+            topCard={gameState.topCard}
+          /> */}
 
-      {/* Active Demand Suit Indicator */}
-      {activeShapeDemand && (
-        <div
-          className="absolute top-24 left-1/2 transform -translate-x-1/2 z-50 
-                      bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 
-                      px-8 py-4 rounded-2xl shadow-2xl border-4 border-white
-                      animate-pulse"
-        >
-          <div className="flex items-center gap-4">
-            <img
-              src={`/suits/${activeShapeDemand.toLowerCase()}.svg`}
-              alt={activeShapeDemand}
-              className="w-12 h-12 filter drop-shadow-lg"
-            />
-            <div>
-              <p className="text-white font-lilitaone text-2xl drop-shadow-lg">
-                SUIT DEMANDED!
-              </p>
-              <p className="text-white font-bold text-lg">
-                Play {activeShapeDemand} cards
-              </p>
-            </div>
-            <img
-              src={`/suits/${activeShapeDemand.toLowerCase()}.svg`}
-              alt={activeShapeDemand}
-              className="w-12 h-12 filter drop-shadow-lg"
-            />
-          </div>
-        </div>
-      )}
-      <div className="flex-1 w-full relative overflow-visible flex gap-x-12.5 px-5">
-        <div className="min-w-max flex gap-x-12.5 w-full">
-          <div className="space-y-12 pt-10 z-40">
-            <LiveChat />
-            <div className="mt-10">
-              <Timer />
-            </div>
-          </div>
-          <div className="flex-1 space-y-20 pt-5 z-40 min-w-[600px]">
-            <PlayerTwo
-              opponent={gameState.opponents[0]}
-              topCard={gameState.topCard}
-            />
-
-            {/* Discard Pile - Shows the current card on table */}
-            <div className="mx-auto flex flex-col items-center gap-4">
-              <p className="text-white font-lilitaone text-lg">Card on Table</p>
-              {gameState.topCard ? (
-                <div className="transform scale-110 shadow-2xl">
-                  <Card
-                    suit={gameState.topCard.suit as any}
-                    value={gameState.topCard.value}
-                    isPlayable={false}
-                  />
+          {/* Active Demand Suit Indicator */}
+          {activeShapeDemand && (
+            <div
+              className="absolute top-24 left-1/2 transform -translate-x-1/2 z-50 rounded-3xl shadow-2xl backdrop-blur-md"
+              style={{
+                background:
+                  "linear-gradient(191.22deg, #64EAFB 33.3%, #73EBFB 44.03%, #85EDFC 56.54%)",
+                border: "4px solid white",
+                animation: "float 3s ease-in-out infinite",
+              }}
+            >
+              <div className="flex flex-col items-center gap-4 px-10 py-6">
+                {/* Large Suit Icon */}
+                <img
+                  src={`/suits/${activeShapeDemand.toLowerCase()}.svg`}
+                  alt={activeShapeDemand}
+                  className="w-20 h-20"
+                  style={{
+                    filter: "drop-shadow(0 0 10px rgba(255, 255, 255, 0.8))",
+                    animation: "icon-glow 2s ease-in-out infinite",
+                  }}
+                />
+                
+                {/* Text Content */}
+                <div className="text-center">
+                  <p className="text-[#01626F] font-lilitaone text-3xl drop-shadow-md">
+                    SUIT DEMANDED!
+                  </p>
+                  <p className="text-white font-satoshi font-bold text-lg mt-1 drop-shadow-sm">
+                    Play {activeShapeDemand} cards only
+                  </p>
                 </div>
-              ) : (
-                <div className="w-37.5 h-50.5 bg-white/20 rounded-2xl border-4 border-dashed border-white/50 flex items-center justify-center">
-                  <p className="text-white/50 font-bold">No cards yet</p>
+              </div>
+
+              <style jsx>{`
+                @keyframes float {
+                  0%, 100% { transform: translate(-50%, 0) translateY(0px); }
+                  50% { transform: translate(-50%, 0) translateY(-10px); }
+                }
+                
+                @keyframes icon-glow {
+                  0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5)); }
+                  50% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1)); }
+                }
+              `}</style>
+            </div>
+          )}
+          <div className="flex-1 w-full relative overflow-visible flex gap-x-12.5 px-5">
+            <div className="min-w-max flex gap-x-12.5 w-full">
+              <div className="space-y-12 pt-10 z-40">
+                <LiveChat />
+                <div className="mt-10">
+                  <Timer />
                 </div>
-              )}
-              <div className="text-white/80 text-sm">
-                {gameState.deckSize} cards left in deck
+              </div>
+              <div className="flex-1 space-y-20 pt-5 z-40 min-w-[600px]">
+                <PlayerTwo
+                  opponent={gameState.opponents[0]}
+                  topCard={gameState.topCard}
+                />
+
+                {/* Discard Pile - Shows the current card on table */}
+                <div className="mx-auto flex flex-col items-center gap-4">
+                  <p className="text-white font-lilitaone text-lg">
+                    Card on Table
+                  </p>
+                  {gameState.topCard ? (
+                    <div className="transform scale-110 shadow-2xl">
+                      <Card
+                        suit={gameState.topCard.suit as any}
+                        value={gameState.topCard.value}
+                        isPlayable={false}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-37.5 h-50.5 bg-white/20 rounded-2xl border-4 border-dashed border-white/50 flex items-center justify-center">
+                      <p className="text-white/50 font-bold">No cards yet</p>
+                    </div>
+                  )}
+                  <div className="text-white/80 text-sm">
+                    {gameState.deckSize} cards left in deck
+                  </div>
+                </div>
+
+                <PlayerOne
+                  myCards={gameState.myCards}
+                  isMyTurn={
+                    gameState.status === "IN_PROGRESS" &&
+                    gameState.currentPlayerIndex === playerNumber - 1
+                  }
+                  topCard={gameState.topCard}
+                  activeDemandSuit={gameState.activeShapeDemand}
+                  opponentName={gameState.opponents[0]?.nickname}
+                  onPlayCard={playCard}
+                  onDrawCard={drawCard}
+                  onCallLastCard={callLastCard}
+                />
+              </div>
+              <div className="space-y-[46px] z-40 mr-5">
+                <GamePlayersTab
+                  playerNumber={playerNumber as 1 | 2}
+                  gameState={gameState}
+                />
+                <DrawPile
+                  deckSize={gameState.deckSize}
+                  onDraw={drawCard}
+                  pendingPenalty={gameState.pendingPenalty}
+                />
               </div>
             </div>
+          </div>
+        </>
+      )}
 
-            <PlayerOne
-              myCards={gameState.myCards}
-              isMyTurn={
-                gameState.status === "IN_PROGRESS" &&
-                gameState.currentPlayerIndex === playerNumber - 1
-              }
-              topCard={gameState.topCard}
-              activeDemandSuit={gameState.activeShapeDemand}
-              opponentName={gameState.opponents[0]?.nickname}
-              onPlayCard={playCard}
-              onDrawCard={drawCard}
-              onCallLastCard={callLastCard}
-            />
-          </div>
-          <div className="space-y-[46px] z-40 mr-5">
-            <GamePlayersTab
-              playerNumber={playerNumber as 1 | 2}
-              gameState={gameState}
-            />
-            <DrawPile
-              deckSize={gameState.deckSize}
-              onDraw={drawCard}
-              pendingPenalty={gameState.pendingPenalty}
-            />
-          </div>
-        </div>
-      </div>
 
       {/* TEST BUTTONS - For Modal Design Testing */}
       {/* <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-4">
@@ -559,7 +714,22 @@ function GameClient() {
         >
           😢 Test Lose Modal
         </button>
+        <button
+          onClick={() =>
+            setSpecialCardModal({
+              isOpen: true,
+              title: "Pick 2!!",
+              message: "Oh no! Opponent played Pick 2! You drew 2 cards",
+              cardSuit: "CIRCLE",
+              cardValue: 2,
+            })
+          }
+          className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-lilitaone rounded-lg shadow-lg transition"
+        >
+          🎴 Test Pick 2 Modal
+        </button>
       </div> */}
+
 
       {/* Modals */}
       <WinModal
@@ -598,6 +768,19 @@ function GameClient() {
           window.location.href = "/";
         }}
       />
+
+      {/* Special Card Modal for Pick 2/Pick 3 penalties */}
+      {specialCardModal && (
+        <SpecialCardModal
+          isOpen={specialCardModal.isOpen}
+          onClose={() => setSpecialCardModal(null)}
+          title={specialCardModal.title}
+          message={specialCardModal.message}
+          cardSuit={specialCardModal.cardSuit}
+          cardValue={specialCardModal.cardValue}
+          buttonText="okay"
+        />
+      )}
     </div>
   );
 }

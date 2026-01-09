@@ -146,7 +146,7 @@ export default function PlayerOne({
         <div className="mt-15">
           <UserBar />
         </div>
-        <div className="flex-1 overflow-x-auto overflow-y-visible pb-10 pt-4">
+        <div className="flex-1 overflow-x-auto overflow-y-visible pb-3 pt-4">
           <div
             className="flex justify-center items-end ml-15"
             style={{
@@ -196,44 +196,6 @@ export default function PlayerOne({
               onClick={() => setShowRulesModal(true)}
             >
               Rules
-            </GameButton>
-          </div>
-          <div className="flex gap-5 items-center flex-wrap justify-center">
-            <GameButton
-              backgroundColor={isMyTurn ? "#0FB6C6" : "#0FB6C640"}
-              customShadow={
-                isMyTurn
-                  ? "-1.24px -1.86px 4.34px 0px rgba(38, 157, 178, 1) inset, 3.72px 1.86px 4.34px 0px rgba(106, 233, 255, 0.25) inset"
-                  : "-1.24px -1.86px 4.34px 0px #269DB2 inset, 3.72px 1.86px 4.34px 0px #6AE9FF40 inset"
-              }
-              backdropBlur="blur(309.74px)"
-              width="w-80"
-              disabled={!isMyTurn}
-            >
-              Special move!!
-            </GameButton>
-            <GameButton
-              backgroundColor={isMyTurn ? "#0FB6C6" : "#0FB6C640"}
-              customShadow={
-                isMyTurn
-                  ? "-1.24px -1.86px 4.34px 0px rgba(38, 157, 178, 1) inset, 3.72px 1.86px 4.34px 0px rgba(106, 233, 255, 0.25) inset"
-                  : "-1.24px -1.86px 4.34px 0px #269DB2 inset, 3.72px 1.86px 4.34px 0px #6AE9FF40 inset"
-              }
-              backdropBlur="blur(309.74px)"
-              width="w-80"
-              disabled={!isMyTurn}
-            >
-              Ask for card?
-            </GameButton>
-            <GameButton
-              backgroundColor="#111010"
-              customShadow={
-                "-1.24px -1.86px 4.34px 0px rgba(44, 40, 40, 0.3) inset, 3.72px 1.86px 4.34px 0px rgba(45, 43, 43, 0.1) inset"
-              }
-              backdropBlur="blur(309.74px)"
-              width="w-80"
-            >
-              Quit
             </GameButton>
           </div>
         </div>

@@ -40,14 +40,59 @@ export default function Home() {
 
           <button
             onClick={() => setShowSplash(true)}
-            className="relative group active:scale-95 bg-[#EA463D] rounded-[30px] transition-transform font-lilitaone duration-100 w-[350px] mt-[-25px]"
-            style={{ boxShadow: "0px 0px 3.75px 0px #25111566" }}
+            className="relative group active:scale-95 transition-transform font-lilitaone duration-100 mt-[-25px]"
           >
-            <div className="absolute inset-0 bg-[#B93838] rounded-full translate-y-2"></div>
-            <div className="relative bg-[#EA4C4C] px-16 py-3 rounded-full border-b-4 border-[#B93838]">
-              <span className="text-[55px]/[44px] text-white drop-shadow-md">
-                connect
-              </span>
+            {/* Shadow layer - behind everything */}
+            <div
+              className="absolute rounded-[25px]"
+              style={{
+                width: "350px",
+                height: "77.75px",
+                top: "0px",
+                left: "0px",
+                boxShadow:
+                  "0px 0px 5px 0px rgba(0, 0, 0, 0.5), inset -13.75px -15px 5px 0px rgba(37, 17, 21, 0.25)",
+              }}
+            />
+
+            {/* Outer layer */}
+            <div
+              className="relative rounded-[28.75px]"
+              style={{
+                width: "350px",
+                height: "77.75px",
+                background: "#EA463D",
+                borderImage:
+                  "linear-gradient(176.2deg, rgba(102, 34, 29, 0.48) -8.06%, rgba(254, 87, 75, 0.48) 43.04%, rgba(102, 34, 29, 0.48) 86.83%) 1",
+                boxShadow: "0px 0px 3.75px 0px rgba(37, 17, 21, 0.4)",
+                paddingTop: "8.75px",
+                paddingRight: "6.25px",
+                paddingBottom: "8.75px",
+                paddingLeft: "3.75px",
+              }}
+            >
+              {/* Inner layer */}
+              <div
+                className="rounded-[25px] flex items-center justify-center"
+                style={{
+                  width: "340px",
+                  height: "60.25px",
+                  background:
+                    "linear-gradient(181.66deg, #FF6C6C -38.58%, rgba(196, 50, 50, 0.69) 127.72%)",
+                  borderTop: "1.25px solid transparent",
+                  borderBottom: "1.25px solid transparent",
+                  borderLeft: "1.25px solid transparent",
+                  borderImage:
+                    "linear-gradient(315.25deg, rgba(249, 106, 92, 0.57) 38.85%, rgba(255, 255, 255, 0) 55.94%), linear-gradient(326.18deg, rgba(255, 255, 255, 0) 85.4%, #FFFFFF 101.4%) 1",
+                  paddingRight: "52.5px",
+                  paddingBottom: "16.25px",
+                  paddingLeft: "52.5px",
+                }}
+              >
+                <span className="text-[55px]/[44px] text-white drop-shadow-md">
+                  connect
+                </span>
+              </div>
             </div>
           </button>
         </div>

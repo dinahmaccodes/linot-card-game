@@ -48,7 +48,7 @@ export default function LastCardNotification({
     if (showNotification) {
       const timer = setTimeout(() => {
         setShowNotification(false);
-      }, 5000); // Hide after 5 seconds (longer duration for warnings)
+      }, 5000); // Hide after 5 seconds
 
       return () => clearTimeout(timer);
     }
@@ -57,25 +57,55 @@ export default function LastCardNotification({
   if (!showNotification) return null;
 
   return (
-    <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 animate-bounce-in">
-      <div className="relative bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 text-white px-8 py-5 rounded-2xl shadow-2xl border-2 border-yellow-300 backdrop-blur-sm">
-        {/* Animated pulsing glow */}
-        <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-orange-300 rounded-2xl opacity-60 blur-lg animate-pulse"></div>
-
+    <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 animate-shake">
+      <div
+        className="relative rounded-2xl shadow-2xl backdrop-blur-sm"
+        style={{
+          background: "linear-gradient(135deg, #E23A2F 0%, #C62828 50%, #B71C1C 100%)",
+          border: "3px solid #6AE4F8",
+          animation: "glow-pulse 2s ease-in-out infinite",
+        }}
+      >
         {/* Content */}
-        <div className="relative flex items-center gap-4">
-          <span className="text-4xl animate-pulse">⚠️</span>
+        <div className="relative flex items-center gap-6 px-8 py-5">
+          {/* Card Icon */}
+          <img
+            src="/lastcard.svg"
+            alt="Last Card"
+            className="w-16 h-20 filter drop-shadow-lg"
+          />
+          
+          {/* Text Content */}
           <div>
-            <p className="font-extrabold text-xl tracking-wide">
-              {opponentName} HAS ONLY 1 CARD LEFT!
+            <p className="font-lilitaone text-2xl text-white drop-shadow-lg tracking-wide">
+              LAST CARD WARNING!
             </p>
-            <p className="text-sm text-yellow-100 mt-1 font-semibold">
-              🚨 Be careful! They're about to win!
+            <p className="text-lg text-white/90 mt-1 font-satoshi font-bold">
+              {opponentName} has only 1 card left!
+            </p>
+            <p className="text-sm text-cyan-200 mt-1 font-satoshi">
+              Watch out! They're about to win!
             </p>
           </div>
-          <span className="text-4xl animate-pulse">⚠️</span>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes shake {
+          0%, 100% { transform: translate(-50%, 0) translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translate(-50%, 0) translateX(-5px); }
+          20%, 40%, 60%, 80% { transform: translate(-50%, 0) translateX(5px); }
+        }
+        
+        @keyframes glow-pulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(106, 228, 248, 0.5); }
+          50% { box-shadow: 0 0 40px rgba(106, 228, 248, 1); }
+        }
+        
+        .animate-shake {
+          animation: shake 0.5s ease-in-out;
+        }
+      `}</style>
     </div>
   );
 }

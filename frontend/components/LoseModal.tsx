@@ -43,7 +43,7 @@ export default function LoseModal({
             {/* Content */}
             <div className="relative z-10 flex flex-col items-center gap-25">
               {/* Clear Time Badge */}
-              <div
+              {/* <div
                 className=" z-5 -mt-10  px-6 py-4  rounded-bl-3xl rounded-br-3xl font-lilitaone text-white text-lg border"
                 style={{
                   background: "rgba(39, 159, 175, 1)",
@@ -51,18 +51,49 @@ export default function LoseModal({
                 }}
               >
                 <p className="mt-10">ran out of time</p>
-              </div>
-              {/* Stars - Empty/Outlined */}
-              <div className="flex gap-4 mt-4">
-                {[1, 2, 3].map((star) => (
-                  <Star
-                    key={star}
-                    size={100}
-                    className="text-[#01626F] opacity-50"
-                    strokeWidth={2}
-                    fill="none"
-                  />
-                ))}
+              </div> */}
+              {/* Stars - Empty/Outlined - Overlapping arrangement */}
+              <div
+                className="relative flex justify-center items-center mt-16 w-full"
+                style={{ height: "200px" }}
+              >
+                {/* Left star */}
+                <img
+                  src="/empstar.svg"
+                  alt="Empty Star"
+                  className="absolute"
+                  style={{
+                    width: "125px",
+                    height: "125px",
+                    left: "calc(50% - 200px)",
+                    zIndex: 10,
+                  }}
+                />
+                {/* Center star (on top) */}
+                <img
+                  src="/empstar.svg"
+                  alt="Empty Star"
+                  className="absolute "
+                  style={{
+                    width: "125px",
+                    height: "125px",
+                    left: "calc(50% - 70px)",
+                    top: "calc(50% - 40px)",
+                    zIndex: 20,
+                  }}
+                />
+                {/* Right star */}
+                <img
+                  src="/empstar.svg"
+                  alt="Empty Star"
+                  className="absolute "
+                  style={{
+                    width: "125px",
+                    height: "125px",
+                    left: "calc(50% - -60px)",
+                    zIndex: 10,
+                  }}
+                />
               </div>
               {/* Divider */}
               {/* <div className="w-full h-px bg-white/30 my-2" /> */}
@@ -102,7 +133,7 @@ export default function LoseModal({
               </div>
             </div> */}
               {/* Action Buttons */}
-              <div className="flex gap-4 w-full mt-4">
+              <div className="flex gap-4 w-full ">
                 <GameButton
                   onClick={onReplay}
                   backgroundColor="#01626F"
