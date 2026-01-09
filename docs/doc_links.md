@@ -35,7 +35,7 @@ https://linera.dev/developers/frontend/wallets.html
 Check this for better knowledge on multiplayer 
 https://github.com/linera-io/linera-protocol/tree/main/examples/hex-game 
 
-I would recommend looking at this example to better understand event streams, microchess also uses events so you can check that out as well,
+I would recommend looking at this example to better understand event streams, inspo also uses events so you can check that out as well,
 
 https://github.com/linera-io/linera-protocol/tree/main/examples%2Fsocial
 

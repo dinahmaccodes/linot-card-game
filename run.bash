@@ -27,7 +27,6 @@ export LINERA_KEYSTORE_2="$LINERA_TMP_DIR/keystore_2.json"
 export LINERA_STORAGE_2="rocksdb:$LINERA_TMP_DIR/client_2.db"
 
 # -----------------------------------------------------------------------------------------------------------------
-# Start Linera Network (microcard pattern)
 # -----------------------------------------------------------------------------------------------------------------
 echo "Starting Linera network..."
 source /dev/stdin <<<"$(linera net helper 2>/dev/null)"

@@ -130,4 +130,4 @@ function GameComponent() {
 
 **For production (frontend):**
 - Use `matchState` + filter by authenticated `owner`
-- Matches microchess/inspo pattern
+- Matches inspo/inspo pattern

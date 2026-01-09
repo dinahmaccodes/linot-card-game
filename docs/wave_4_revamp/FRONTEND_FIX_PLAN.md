@@ -205,9 +205,9 @@ const handleJoinGame = async () => {
 
 ---
 
-## Key Differences from MicroChess
+## Key Differences from inspo
 
-**MicroChess:**
+**inspo:**
 - Uses centralized matching system
 - Has game hash for friendly matches
 - Complex match-making flow

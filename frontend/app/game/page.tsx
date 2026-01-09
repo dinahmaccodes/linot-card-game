@@ -92,9 +92,10 @@ function GameClient() {
     if (gameState) {
       const opponentName = gameState.opponents[0]?.nickname || "Opponent";
       const localPlayerIndex = playerNumber - 1;
-      
+
       // Check if I was the one who just played (previousPlayerIndex)
-      const iJustPlayed = previousPlayerIndex === localPlayerIndex && previousPlayerIndex !== -1;
+      const iJustPlayed =
+        previousPlayerIndex === localPlayerIndex && previousPlayerIndex !== -1;
 
       // Detect when penalty INCREASES (player blocked/defended)
       // Only show to the player who BLOCKED (the one who just played)
