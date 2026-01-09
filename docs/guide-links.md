@@ -15,7 +15,7 @@ Research online on how graph mutations work with the frontend for linera
 
 I want you to use that to better understand how things work first 
 
-I would recommend looking at this example to better understand event streams, microchess also uses events so you can check that out as well,
+I would recommend looking at this example to better understand event streams, inspo also uses events so you can check that out as well,
 
 https://github.com/linera-io/linera-protocol/tree/main/examples%2Fsocial
 

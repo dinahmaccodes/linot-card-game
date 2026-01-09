@@ -43,15 +43,13 @@ export default function PlayerTwo({ opponent, topCard }: PlayerTwoProps) {
           ))}
         </div>
         
-        {/* Opponent's UserBar - inverted layout (avatar on right, name on left) */}
-        <div className="flex items-center flex-row-reverse">
-          <div className="border-[1.2px] border-[#F9F9F9] rounded-full overflow-hidden w-20.25 h-20.25 z-5">
-            <img src="/user-pfp.svg" alt="" className="w-full h-full" />
-          </div>
+        
+        {/* Opponent's UserBar - name only (no avatar) */}
+        <div className="flex items-center ml-10">
           <div
-            className="-mr-6.25 pl-5.5 pr-9.5 rounded-[10px] border-[0.4px] border-[#D0EEF5] text-[27px]/[18px] py-3 text-center text-[#01626F] font-satoshi"
+            className="pl-5.5 pr-9.5 rounded-[10px] border-[0.4px] border-[#D0EEF5] text-[27px]/[18px] py-3 text-center text-white font-satoshi"
             style={{
-              backgroundColor: "#88D0E1",
+              backgroundColor: "#88D0E1", // Default color since we can't reliably fetch from localStorage
               boxShadow: `
     -1.99px -2.99px 6.97px 0px rgba(255, 255, 255, 0.3) inset,
      5.97px  2.99px 6.97px 0px rgba(255, 255, 255, 0.3) inset,

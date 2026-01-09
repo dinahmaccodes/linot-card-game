@@ -1,19 +1,7 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
 echo "Deploying Whot Card Game - 2 Player Multiplayer"
-
-# -----------------------------------------------------------------------------------------------------------------
-# Cleanup and Setup
-# -----------------------------------------------------------------------------------------------------------------
-
-
-cleanup() {
-  echo "Cleaning up..."
-  rm -rf frontend/web_p1 frontend/web_p2
-  kill $SERVICE_PID_1 $SERVICE_PID_2 2>/dev/null || true
-}
-# REMOVED trap cleanup EXIT - was hiding deployment errors!
 
 # -----------------------------------------------------------------------------------------------------------------
 # Environment Setup
@@ -24,7 +12,7 @@ export SERVICE_PORT_1=8081
 export SERVICE_PORT_2=8082
 LINERA_TMP_DIR=/tmp/linera_whot
 
-# Remove old data (inspo pattern)
+# Remove old data
 echo "Cleaning up old state..."
 rm -rf $LINERA_TMP_DIR
 mkdir -p $LINERA_TMP_DIR
@@ -39,10 +27,10 @@ export LINERA_KEYSTORE_2="$LINERA_TMP_DIR/keystore_2.json"
 export LINERA_STORAGE_2="rocksdb:$LINERA_TMP_DIR/client_2.db"
 
 # -----------------------------------------------------------------------------------------------------------------
-# Start Linera Network
 # -----------------------------------------------------------------------------------------------------------------
 echo "Starting Linera network..."
-linera net up --initial-amount 1000000000 --with-faucet --faucet-port $FAUCET_PORT > /tmp/linera_network.log 2>&1 &
+source /dev/stdin <<<"$(linera net helper 2>/dev/null)"
+linera_spawn linera net up --initial-amount 1000000000 --with-faucet --faucet-port $FAUCET_PORT
 echo "Waiting for network to initialize..."
 sleep 12
 
@@ -100,15 +88,6 @@ echo "Player 1 wallet synced"
 echo "Syncing Player 2 wallet..."
 linera --with-wallet 2 sync && linera --with-wallet 2 query-balance  
 echo "Player 2 wallet synced"
-
-# Verify Player 2 actually tracks PLAY_CHAIN
-echo "Verifying Player 2 wallet tracking..."
-if linera --with-wallet 2 wallet show | grep -q "$PLAY_CHAIN"; then
-  echo "✓ Player 2 wallet is tracking PLAY_CHAIN"
-else
-  echo "✗ WARNING: Player 2 wallet does NOT track PLAY_CHAIN!"
-  echo "  This will cause synchronization errors during gameplay."
-fi
 
 echo "Wallet sync complete"
 
@@ -265,26 +244,18 @@ sleep 5
 
 echo "Starting web servers..."
 cd frontend/web_p1
-npx -y http-server . -p 5173 --cors -c0 --no-dotfiles &
+npx -y http-server . -p 5173 --cors -c0 --no-dotfiles --silent &
 WEB_PID_1=$!
 
 cd ../web_p2
-npx -y http-server . -p 5174 --cors -c0 --no-dotfiles &
+npx -y http-server . -p 5174 --cors -c0 --no-dotfiles --silent &
 WEB_PID_2=$!
 cd ../..
 
 echo ""
 echo "================================================"
-echo "Linot Running!"
+echo "Linot Deployment Complete!"
 echo "================================================"
-echo ""
-echo "Frontend:"
-echo "  Player 1: http://localhost:5173?player=1"
-echo "  Player 2: http://localhost:5174?player=2"
-echo ""
-echo "GraphQL:"
-echo "  Player 1: http://localhost:$SERVICE_PORT_1"
-echo "  Player 2: http://localhost:$SERVICE_PORT_2"
 echo ""
 echo "Application Details:"
 echo "  APP_ID:        $APP_ID"
@@ -294,11 +265,21 @@ echo "  USER_CHAIN_2:  $USER_CHAIN_2"
 echo "  OWNER_1:       $OWNER_1"
 echo "  OWNER_2:       $OWNER_2"
 echo ""
+echo "GraphQL Endpoints:"
+echo "  Player 1: http://localhost:$SERVICE_PORT_1"
+echo "  Player 2: http://localhost:$SERVICE_PORT_2"
+echo ""
 echo "GraphQL Test URLs:"
 echo "  Player 1: http://localhost:$SERVICE_PORT_1/chains/$USER_CHAIN_1/applications/$APP_ID"
 echo "  Player 2: http://localhost:$SERVICE_PORT_2/chains/$USER_CHAIN_2/applications/$APP_ID"
 echo ""
-echo "Services running. Press Ctrl+C to stop."
+echo "================================================"
+echo "Frontend:"
+echo "  Player 1: http://localhost:5173"
+echo "  Player 2: http://localhost:5174"
+echo ""
+echo "LINOT RUNNING SUCCESSFULLY!"
+echo "================================================"
 echo ""
 
 # Keep running

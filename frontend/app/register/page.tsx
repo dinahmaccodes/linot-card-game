@@ -45,7 +45,7 @@ function RegisterPage() {
         playerNumber: player,
         maxPlayers: player === 1 ? maxPlayers : 2, // Only Player 1 sets max players
       };
-      
+
       // Store in context (which also saves to localStorage)
       setUserProfile(profile);
 
@@ -204,10 +204,10 @@ function RegisterPage() {
           </div>
         </div>
 
-        <p className="py-2 px-3 text-[#01626F] font-satoshi text-base/[100%]">
+        {/* <p className="py-2 px-3 text-[#01626F] font-satoshi text-base/[100%]">
           Note: by registering you get an automatic{" "}
           <span className="font-bold">30</span> coins!!!
-        </p>
+        </p> */}
       </div>
 
       <div

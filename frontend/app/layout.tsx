@@ -3,6 +3,7 @@ import { Titan_One, Lilita_One } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { UserProfileProvider } from "@/lib/UserProfileContext";
+import { AudioProvider } from "@/lib/AudioContext";
 
 // Load the font
 const titanOne = Titan_One({
@@ -56,7 +57,9 @@ export default function RootLayout({
         className={`${titanOne.className} ${lilitaOne.variable} ${satoshi.variable} antialiased`}
       >
         <UserProfileProvider>
-          {children}
+          <AudioProvider>
+            {children}
+          </AudioProvider>
         </UserProfileProvider>
       </body>
     </html>

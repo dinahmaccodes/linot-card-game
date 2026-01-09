@@ -1,10 +1,13 @@
 import React from "react";
 // import UserPoints from "../app/game/components//UserPoints";
 // import UsersOnline from "../app/game/components//UsersOnline";
-import { House, Volume2 } from "lucide-react";
+import { House, Volume2, VolumeX } from "lucide-react";
 import ConnectedUserBar from "../app/game/components/ConnectedUserBar";
+import { useAudio } from "@/lib/AudioContext";
 
 function Navbar() {
+  const { isMuted, toggleMute } = useAudio();
+
   return (
     <div className="flex items-center justify-between py-4 px-5">
       <img src="/logo.svg" alt="" />
@@ -27,6 +30,7 @@ function Navbar() {
               <House size={27} />
             </button>
             <button
+              onClick={toggleMute}
               className="bg-[#79D993] border-[0.3px] border-[#D0EEF5] p-1.5 rounded-lg text-white flex justify-center items-center"
               style={{
                 boxShadow: `
@@ -37,7 +41,7 @@ function Navbar() {
                 WebkitBackdropFilter: "blur(309.74px)",
               }}
             >
-              <Volume2 size={27} />
+              {isMuted ? <VolumeX size={27} /> : <Volume2 size={27} />}
             </button>
           </div>
         </div>

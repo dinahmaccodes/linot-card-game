@@ -43,7 +43,7 @@ export default function WinModal({
         {/* Modal */}
         <div className="border-5 rounded-4xl">
           <div
-            className="relative w-[500px] rounded-3xl p-8 shadow-2xl border-10 backdrop-blur-[300px] border-[#6AE4F8] "
+            className="relative w-125 rounded-3xl p-8 shadow-2xl border-10 backdrop-blur-[300px] border-[#6AE4F8] "
             style={{
               background: "rgba(34, 186, 206, 1)",
             }}
@@ -51,7 +51,7 @@ export default function WinModal({
             {/* Content */}
             <div className="relative z-10 flex flex-col items-center gap-25">
               {/* Clear Time Badge */}
-              <div
+              {/* <div
                 className=" z-5 -mt-10  px-6 py-4  rounded-bl-3xl rounded-br-3xl font-lilitaone text-white text-lg border"
                 style={{
                   background: "rgba(39, 159, 175, 1)",
@@ -59,19 +59,49 @@ export default function WinModal({
                 }}
               >
                 <p className="mt-10"> Clear Time: {clearTime}</p>
-              </div>
-              {/* Stars */}
-              <div className="flex gap-4 mt-4">
-                {[1, 2, 3].map((star) => (
-                  <div
-                    key={star}
-                    className={`text-8xl transition-all duration-300 ${
-                      star <= stars ? "scale-110" : "opacity-30 grayscale"
-                    }`}
-                  >
-                    ⭐
-                  </div>
-                ))}
+              </div> */}
+              {/* Stars - Overlapping arrangement */}
+              <div
+                className="relative flex justify-center items-center mt-16 w-full -ml-28"
+                style={{ height: "200px" }}
+              >
+                {/* Left star */}
+                <img
+                  src="/star.png"
+                  alt="Star"
+                  className="absolute w-35 h-35 "
+                  style={{
+                    left: "calc(50% - 150px)",
+                    filter:
+                      stars >= 1 ? "none" : "grayscale(100%) opacity(0.3)",
+                    zIndex: 10,
+                  }}
+                />
+                {/* Center star (on top) */}
+                <img
+                  src="/star.png"
+                  alt="Star"
+                  className="absolute w-35 h-35 "
+                  style={{
+                    left: "calc(50% - 10px)",
+                    top: "calc(50% - 40px)",
+                    filter:
+                      stars >= 2 ? "none" : "grayscale(100%) opacity(0.3)",
+                    zIndex: 20,
+                  }}
+                />
+                {/* Right star */}
+                <img
+                  src="/star.png"
+                  alt="Star"
+                  className="absolute w-35 h-35 "
+                  style={{
+                    left: "calc(50% - -130px)",
+                    filter:
+                      stars >= 3 ? "none" : "grayscale(100%) opacity(0.3)",
+                    zIndex: 10,
+                  }}
+                />
               </div>
               {/* Divider */}
               {/* <div className="w-full h-px bg-white/30 my-2" /> */}
@@ -111,7 +141,7 @@ export default function WinModal({
               </div>
             </div> */}
               {/* Action Buttons */}
-              <div className="flex gap-4 w-full mt-4">
+              <div className="flex gap-4 w-full">
                 <GameButton
                   onClick={onReplay}
                   backgroundColor="#01626F"

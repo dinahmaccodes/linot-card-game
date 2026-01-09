@@ -75,7 +75,7 @@ impl QueryRoot {
     }
 
     /// Get player's hand by their AccountOwner
-    /// Uses microchess pattern: frontend passes owner parameter
+    /// Uses inspo pattern: frontend passes owner parameter
     async fn my_hand(&self, owner: AccountOwner) -> Vec<Card> {
         let match_data = self.state.match_data.get();
         for player_opt in &match_data.players {

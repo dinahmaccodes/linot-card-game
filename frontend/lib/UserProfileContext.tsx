@@ -34,13 +34,31 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const setUserProfile = (profile: UserProfile) => {
+  const setUserProfile = async (profile: UserProfile) => {
     setUserProfileState(profile);
-    // Sync to localStorage
+    // Sync to localStorage using player number
     localStorage.setItem(
       `whot_player_profile_${profile.playerNumber}`,
       JSON.stringify(profile)
     );
+    
+    // ALSO store by owner address (if available) for opponent lookup
+    try {
+      const response = await fetch('/config.json');
+      if (response.ok) {
+        const configData = await response.json();
+        const endpoint = configData.endpoints?.find((e: any) => e.playerNumber === profile.playerNumber);
+        if (endpoint?.owner) {
+          localStorage.setItem(
+            `userProfile_${endpoint.owner}`,
+            JSON.stringify(profile)
+          );
+          console.log(`Stored profile for owner: ${endpoint.owner}`);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to store profile by owner', e);
+    }
   };
 
   const clearUserProfile = () => {

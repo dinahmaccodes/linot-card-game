@@ -28,7 +28,7 @@ export function useWhotGame(playerNumber: 1 | 2) {
       // Query PLAY_CHAIN for match state (authoritative source)
       const data = await queryPlayChain<any>(
         `
-        query GameData($owner: String!) {
+        query GameData($owner:  AccountOwner!) {
           matchState {
             status
             currentPlayerIndex
