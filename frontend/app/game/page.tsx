@@ -44,7 +44,7 @@ function GameClient() {
   // Modal states for testing/editing
   const [showWinModal, setShowWinModal] = useState(false);
   const [showLoseModal, setShowLoseModal] = useState(false);
-  
+
   // Special card modal state
   const [specialCardModal, setSpecialCardModal] = useState<{
     isOpen: boolean;
@@ -91,24 +91,37 @@ function GameClient() {
   useEffect(() => {
     if (gameState) {
       const opponentName = gameState.opponents[0]?.nickname || "Opponent";
-      const isMyTurn = gameState.currentPlayerIndex === playerNumber - 1;
+      const localPlayerIndex = playerNumber - 1;
       
+      // Check if I was the one who just played (previousPlayerIndex)
+      const iJustPlayed = previousPlayerIndex === localPlayerIndex && previousPlayerIndex !== -1;
+
       // Detect when penalty INCREASES (player blocked/defended)
-      // Only show to the player who BLOCKED (the one whose turn it is)
-      if (previousPenalty > 0 && gameState.pendingPenalty > previousPenalty && isMyTurn) {
+      // Only show to the player who BLOCKED (the one who just played)
+      if (
+        previousPenalty > 0 &&
+        gameState.pendingPenalty > previousPenalty &&
+        iJustPlayed
+      ) {
         const stackedAmount = gameState.pendingPenalty - previousPenalty;
         let title = "";
         let message = "";
-        let cardSuit: "CIRCLE" | "CROSS" | "TRIANGLE" | "SQUARE" | "STAR" | "WHOT" = "CIRCLE";
+        let cardSuit:
+          | "CIRCLE"
+          | "CROSS"
+          | "TRIANGLE"
+          | "SQUARE"
+          | "STAR"
+          | "WHOT" = "CIRCLE";
         let cardValue = 2;
-        
+
         // Blocking Pick 2 with Pick 2
         if (stackedAmount === 2 && previousPenalty === 2) {
           title = "Blocked!!";
           message = `🎴 You blocked with Pick 2! ${opponentName} now faces 4 cards total!`;
           cardSuit = "CIRCLE";
           cardValue = 2;
-        } 
+        }
         // Blocking Pick 3 with Pick 3
         else if (stackedAmount === 3 && previousPenalty === 3) {
           title = "Blocked!!";
@@ -117,14 +130,22 @@ function GameClient() {
           cardValue = 5;
         }
         // Multiple Pick 2 stacks
-        else if (stackedAmount === 2 && previousPenalty >= 4 && previousPenalty % 2 === 0) {
+        else if (
+          stackedAmount === 2 &&
+          previousPenalty >= 4 &&
+          previousPenalty % 2 === 0
+        ) {
           title = "Blocked!!";
           message = `🎴 You blocked with Pick 2! ${opponentName} now faces ${gameState.pendingPenalty} cards total!`;
           cardSuit = "CIRCLE";
           cardValue = 2;
         }
         // Multiple Pick 3 stacks
-        else if (stackedAmount === 3 && previousPenalty >= 6 && previousPenalty % 3 === 0) {
+        else if (
+          stackedAmount === 3 &&
+          previousPenalty >= 6 &&
+          previousPenalty % 3 === 0
+        ) {
           title = "Blocked!!";
           message = `🎴 You blocked with Pick 3! ${opponentName} now faces ${gameState.pendingPenalty} cards total!`;
           cardSuit = "CROSS";
@@ -137,7 +158,7 @@ function GameClient() {
           cardSuit = "CIRCLE";
           cardValue = 2;
         }
-        
+
         setSpecialCardModal({
           isOpen: true,
           title,
@@ -147,14 +168,24 @@ function GameClient() {
         });
       }
       // Detect when penalty is cleared (player drew cards)
-      // Only show to the player who DREW (the one whose turn it is NOT)
-      else if (previousPenalty > 0 && gameState.pendingPenalty === 0 && !isMyTurn) {
+      // Only show to the player who DREW (the one who just played)
+      else if (
+        previousPenalty > 0 &&
+        gameState.pendingPenalty === 0 &&
+        iJustPlayed
+      ) {
         // Determine card type and message
         let title = "";
         let message = "";
-        let cardSuit: "CIRCLE" | "CROSS" | "TRIANGLE" | "SQUARE" | "STAR" | "WHOT" = "CIRCLE";
+        let cardSuit:
+          | "CIRCLE"
+          | "CROSS"
+          | "TRIANGLE"
+          | "SQUARE"
+          | "STAR"
+          | "WHOT" = "CIRCLE";
         let cardValue = 2;
-        
+
         if (previousPenalty === 2) {
           title = "Pick 2!!";
           message = `Oh no! ${opponentName} played Pick 2! You drew 2 cards`;
@@ -181,7 +212,7 @@ function GameClient() {
           cardSuit = "CIRCLE";
           cardValue = 2;
         }
-        
+
         setSpecialCardModal({
           isOpen: true,
           title,
@@ -190,10 +221,17 @@ function GameClient() {
           cardValue,
         });
       }
-      
+
       setPreviousPenalty(gameState.pendingPenalty);
     }
-  }, [gameState?.pendingPenalty, previousPenalty, gameState?.opponents, gameState?.currentPlayerIndex, playerNumber]);
+  }, [
+    gameState?.pendingPenalty,
+    previousPenalty,
+    gameState?.opponents,
+    gameState?.currentPlayerIndex,
+    previousPlayerIndex,
+    playerNumber,
+  ]);
 
   // Track player index changes for Hold On notification
   useEffect(() => {
@@ -211,21 +249,37 @@ function GameClient() {
         Number(gameState.topCard.value) === 14 &&
         previousDeckSize > gameState.deckSize
       ) {
-        const opponentName = gameState.opponents[0]?.nickname || "Opponent";
-        
-        setSpecialCardModal({
-          isOpen: true,
-          title: "General Market!!",
-          message: `${opponentName} played 14 for General Market so you get one extra card added`,
-          isGeneralMarket: true,
-          cardSuit: "WHOT",
-          cardValue: 14,
-        });
+        const localPlayerIndex = playerNumber - 1;
+
+        // Only show notification if YOU DIDN'T play the card
+        // previousPlayerIndex is who played the card (before turn changed)
+        if (
+          previousPlayerIndex !== localPlayerIndex &&
+          previousPlayerIndex !== -1
+        ) {
+          const opponentName = gameState.opponents[0]?.nickname || "Opponent";
+
+          setSpecialCardModal({
+            isOpen: true,
+            title: "General Market!!",
+            message: `${opponentName} played 14 for General Market so you get one extra card added`,
+            isGeneralMarket: true,
+            cardSuit: "WHOT",
+            cardValue: 14,
+          });
+        }
       }
-      
+
       setPreviousDeckSize(gameState.deckSize);
     }
-  }, [gameState?.deckSize, previousDeckSize, gameState?.topCard, gameState?.opponents]);
+  }, [
+    gameState?.deckSize,
+    previousDeckSize,
+    gameState?.topCard,
+    gameState?.opponents,
+    previousPlayerIndex,
+    playerNumber,
+  ]);
 
   // Track opponent hand size changes for Draw notification
   useEffect(() => {
@@ -607,7 +661,7 @@ function GameClient() {
                     animation: "icon-glow 2s ease-in-out infinite",
                   }}
                 />
-                
+
                 {/* Text Content */}
                 <div className="text-center">
                   <p className="text-[#01626F] font-lilitaone text-3xl drop-shadow-md">
@@ -621,13 +675,23 @@ function GameClient() {
 
               <style jsx>{`
                 @keyframes float {
-                  0%, 100% { transform: translate(-50%, 0) translateY(0px); }
-                  50% { transform: translate(-50%, 0) translateY(-10px); }
+                  0%,
+                  100% {
+                    transform: translate(-50%, 0) translateY(0px);
+                  }
+                  50% {
+                    transform: translate(-50%, 0) translateY(-10px);
+                  }
                 }
-                
+
                 @keyframes icon-glow {
-                  0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5)); }
-                  50% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1)); }
+                  0%,
+                  100% {
+                    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+                  }
+                  50% {
+                    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1));
+                  }
                 }
               `}</style>
             </div>
@@ -699,7 +763,6 @@ function GameClient() {
         </>
       )}
 
-
       {/* TEST BUTTONS - For Modal Design Testing */}
       {/* <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-4">
         <button
@@ -729,7 +792,6 @@ function GameClient() {
           🎴 Test Pick 2 Modal
         </button>
       </div> */}
-
 
       {/* Modals */}
       <WinModal

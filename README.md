@@ -31,18 +31,17 @@ The easiest way to test Linot is using Docker as we are using the docker templat
    docker compose up --build
    ```
 
-3. Wait for the deployment to complete. You should see the Linera services starting up in the terminal logs.
+3. Wait until you see the following message in the terminal logs:
 
-4. Open two browser windows to access the game:
-   - **Player 1**: [http://localhost:5173?player=1](http://localhost:5173?player=1)
-   - **Player 2**: [http://localhost:5174?player=2](http://localhost:5174?player=2)
+   ```
+   LINOT RUNNING SUCCESSFULLY!
+   ```
 
-OR
+4. Open two browser windows to access the multiplayer game. Two players are available, each running on their own node with their own microchains:
+   - **Player 1**: [http://localhost:5173](http://localhost:5173)
+   - **Player 2**: [http://localhost:5174](http://localhost:5174)
 
-- **Player 1**: [http://localhost:5173](http://localhost:5173)
-  - **Player 2**: [http://localhost:5174](http://localhost:5174)
-
-Complete command sequence:
+Complete command:
 
 ```bash
 git clone https://github.com/dinahmaccodes/linot-card-game.git
@@ -71,8 +70,8 @@ docker compose up --build
 - Wait for Player 1 to start the game
 
 1. **Player 1 Starts the Game**:
-      
-      Return back to this link [http://localhost:5173](http://localhost:5173) and start the game once player 2 has joined
+
+   Return back to this link [http://localhost:5173](http://localhost:5173) and start the game once player 2 has joined
 
    - Once Player 2 has joined, click "Start Match"
    - Cards are automatically dealt to both players
@@ -297,4 +296,4 @@ Your work is enabling the next generation of on-chain applications, and we're ex
 
 ---
 
-**Built on Linera** | **Deployed Locally** | **Multiplayer Ready**
+**Built on Linera** | **Deployed Locally using Docker Template** | **Multiplayer Ready**
