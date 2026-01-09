@@ -55,21 +55,30 @@ docker compose up --build
 ### Game Setup Flow
 
 1. **Player 1 Creates a Match**:
+
+   Using this link : <http://localhost:5173>
+
    - Register with a username
    - Click "Create Game" to initialize a match on the PLAY_CHAIN
    - Wait for Player 2 to join
 
 2. **Player 2 Joins the Match**:
-   - Register with a username
-   - Click "Join Game" to connect to Player 1's match
-   - Wait for Player 1 to start the game
 
-3. **Player 1 Starts the Game**:
+   Open a new tab or new browser and use this link: <http://localhost:5174>
+
+- Register with a username
+- Click "Join Game" to connect to Player 1's match
+- Wait for Player 1 to start the game
+
+1. **Player 1 Starts the Game**:
+      
+      Return back to this link [http://localhost:5173](http://localhost:5173) and start the game once player 2 has joined
+
    - Once Player 2 has joined, click "Start Match"
    - Cards are automatically dealt to both players
    - Gameplay begins with the first player's turn
 
-4. **Gameplay**:
+2. **Gameplay**:
    - Match the **suit** or **number** of the top card on the discard pile
    - Draw a card if you cannot play
    - Use special cards strategically to gain advantage
@@ -94,6 +103,7 @@ Complete rules are displayed in-game via the **Rules** button during gameplay.
 Linot uses a distributed chain architecture:
 
 1. **USER_CHAINs**: Individual player chains
+
    - Store player-specific state (hand, turn status)
    - Send game actions (play card, draw card, etc.)
    - Subscribe to PLAY_CHAIN events for updates
@@ -185,6 +195,7 @@ Our implementation leverages core Linera capabilities:
 #### Wave 5 Achievements
 
 **Backend & Smart Contract Development:**
+
 - Implemented deferred subscription pattern to solve cross-chain messaging reliability
 - Fixed errors through proper chain-specific message handling
 - Completed full game logic implementation in Rust smart contracts:
@@ -198,6 +209,7 @@ Our implementation leverages core Linera capabilities:
 - Added automatic bytecode propagation handling for seamless multi-chain deployment
 
 **Frontend Development:**
+
 - Built dual-player Next.js frontend with real-time state synchronization
 - Implemented GraphQL client with 500ms polling for near-instant updates
 - Created comprehensive UI components:
@@ -212,6 +224,7 @@ Our implementation leverages core Linera capabilities:
 - Added visual feedback for active suit demands and turn status
 
 **Multiplayer Flow Integration:**
+
 - Created complete game lifecycle: Registration → Create → Join → Start → Play → End
 - Implemented event-driven state updates across both player frontends
 - Synchronized game state changes (card plays, draws, turn changes) in real-time
@@ -219,6 +232,7 @@ Our implementation leverages core Linera capabilities:
 - Tested and verified full gameplay from start to finish with two players
 
 **Documentation & Deployment:**
+
 - Created Docker-based deployment setup using Linera's template
 - Wrote comprehensive documentation for multiplayer architecture patterns
 - Documented all special card mechanics and blocking logic
@@ -229,12 +243,14 @@ Our implementation leverages core Linera capabilities:
 Building to this point required foundational work across earlier waves:
 
 **Wave 1-2: Foundation & Planning**
+
 - Project conceptualization and team formation
 - Research into Linera's multi-chain architecture
 - Initial repository setup and project structure planning
 - Technology stack selection (Rust, Next.js, GraphQL)
 
 **Wave 3: Core Development**
+
 - Initial smart contract scaffold in Rust
 - Basic game state structures and types definition
 - Preliminary GraphQL schema design
@@ -242,6 +258,7 @@ Building to this point required foundational work across earlier waves:
 - Local Linera network setup and testing environment
 
 **Wave 4: Logic Implementation & UI Development**
+
 - Card game logic implementation (dealing, basic validation)
 - Special card effect rules coding
 - Minimalistic UI components development
@@ -257,10 +274,8 @@ These earlier waves established the groundwork that enabled Wave 5's successful 
 
 - **Dinah Macaulay** - Lead Software Developer & Smart Contract Developer  
   [@dinahmaccodes-on-github](https://github.com/dinahmaccodes) | [dinahmaccodes-on-discord](https://discordapp.com/users/dinahmaccodes)
-  
 - **Divine Macaulay Egbezien** - Project Manager & Product Designer  
   [@divine_macaulay](https://x.com/divine_macaulay)
-  
 - **Alex Benjamin** - Frontend Developer  
   [@Alex-Benjamin](https://github.com/Benalex8797)
 
