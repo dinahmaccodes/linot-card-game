@@ -18,6 +18,28 @@ Linot is a decentralized multiplayer card game that demonstrates Linera's multi-
 
 The easiest way to test Linot is using Docker as we are using the docker template:
 
+### ⚠️ Important: Docker Memory Requirements
+
+**For Windows& Ubuntu Users (Docker Desktop):**
+
+The Next.js build process requires significant memory. **Before starting**, ensure Docker has at least **6-8 GB** of RAM allocated:
+
+1. Open **Docker Desktop**
+2. Go to **Settings** → **Resources** → **Advanced**
+3. Set **Memory** to **6 GB minimum** (8 GB recommended)
+4. Click **Apply & Restart**
+
+**Without sufficient memory, you may encounter:**
+
+```
+Bus error (core dumped)
+linot-1 exited with code 135
+```
+
+This error occurs during the frontend build step when Docker runs out of memory. Once you increase the memory allocation, the build will complete successfully.
+
+### Setup Instructions
+
 1. Clone the repository and navigate to the project folder:
 
    ```bash
